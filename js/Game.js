@@ -27,6 +27,10 @@ BasicGame.Game = function (game) {
 
 BasicGame.Game.prototype = {
 
+    // ----------------------------------------------------
+    // Core create and update functions for Game.js
+    // ----------------------------------------------------
+
     create: function () {
 
         // Set window scale mode
@@ -35,10 +39,22 @@ BasicGame.Game.prototype = {
        
         // Initialize physics engine
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
+        // Create the arena depending on the chosen arena type
+        createArena(game.arenaType);
     },
 
     update: function () {
 
+    },
+
+    // ----------------------------------------------------
+    // Helper functions for Game.js
+    // ----------------------------------------------------
+
+    createArena: function(whichArena){
+
+        // Create the arena features based on which arena was chosen on the previous menu.
     },
 
     quitGame: function () {
