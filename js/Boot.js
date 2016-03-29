@@ -1,10 +1,10 @@
-var BasicGame = {};
 
-BasicGame.Boot = function (game) {
+
+var Boot = function (game) {
 
 };
 
-BasicGame.Boot.prototype = {
+Boot.prototype = {
 
     init: function () {
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;

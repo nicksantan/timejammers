@@ -1,5 +1,5 @@
 
-BasicGame.Preloader = function (game) {
+Preloader = function (game) {
 
 	this.background = null;
 	this.preloadBar = null;
@@ -8,7 +8,7 @@ BasicGame.Preloader = function (game) {
 
 };
 
-BasicGame.Preloader.prototype = {
+Preloader.prototype = {
 
 	preload: function () {
 

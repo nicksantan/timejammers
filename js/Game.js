@@ -1,5 +1,4 @@
-
-BasicGame.Game = function (game) {
+Game = function (game) {
 
     //  When a State is added to Phaser it automatically has the following properties set on it, even if they already exist:
 
@@ -25,7 +24,7 @@ BasicGame.Game = function (game) {
 
 };
 
-BasicGame.Game.prototype = {
+Game.prototype = {
 
     // ----------------------------------------------------
     // Core create and update functions for Game.js
@@ -41,11 +40,15 @@ BasicGame.Game.prototype = {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
         // Create the arena depending on the chosen arena type
-        createArena(game.arenaType);
+        //this.createArena(game.arenaType);
+
+        // Create the applicable number of players based on choices made at the main menu.
+        testPlayer = new Player(game,0,0,1);
+        game.add.existing(testPlayer)
     },
 
     update: function () {
-
+       // console.log("running?")
     },
 
     // ----------------------------------------------------
