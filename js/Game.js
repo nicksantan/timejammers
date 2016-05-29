@@ -66,20 +66,20 @@ Game.prototype = {
         // Create the arena features based on which arena was chosen on the previous menu.
         switch (whichArena){
             case 1:
-                // Draw four walls. TODO: Turn the wall into a class
-                this.wallOne = game.add.sprite(0,0, 'wall');
+                // Draw four walls.
+                this.wallOne = new Wall(game,0,0);
                 this.wallOne.width = this.world.width;
                 this.wallOne.height = 50;
 
-                this.wallTwo = game.add.sprite(0,this.world.height-50, 'wall');
+                this.wallTwo = new Wall(game,0,this.world.height-50);
                 this.wallTwo.width = this.world.width;
                 this.wallTwo.height = 50;
 
-                this.wallThree = game.add.sprite(this.world.width-50,50, 'wall');
+                this.wallThree = new Wall(game,this.world.width-50,50);
                 this.wallThree.width = 50;
                 this.wallThree.height = this.world.height - 100;
 
-                this.wallFour = game.add.sprite(0,50, 'wall');
+                this.wallFour = new Wall(game,0,50);
                 this.wallFour.width = 50;
                 this.wallFour.height = this.world.height - 100;
 
@@ -89,9 +89,7 @@ Game.prototype = {
                 this.walls.add(this.wallFour);
 
             break;
-        }
-
-      
+        }      
     },
 
     serveDisc: function(){
