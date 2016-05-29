@@ -59,3 +59,14 @@ Player.prototype.moveLeft = function(){
 console.log("left!")
 }
 
+Player.prototype.moveRight = function(){
+console.log("right!")
+}
+
+Player.prototype.moveUp = function(){
+console.log("up!")
+}
+
+Player.prototype.moveDown = function(){
+console.log("down!")
+}

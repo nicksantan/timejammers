@@ -40,11 +40,12 @@ Game.prototype = {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
         // Create the arena depending on the chosen arena type
-        //this.createArena(game.arenaType);
+        this.createArena(game.arenaType);
 
         // Create the applicable number of players based on choices made at the main menu.
+        // For now, just create a test player.
         testPlayer = new Player(game,0,0,1);
-        game.add.existing(testPlayer)
+        game.add.existing(testPlayer);
     },
 
     update: function () {
@@ -57,7 +58,44 @@ Game.prototype = {
 
     createArena: function(whichArena){
 
+     
+
+        // Create a group to hold the walls
+        this.walls = game.add.group();
+
         // Create the arena features based on which arena was chosen on the previous menu.
+        switch (whichArena){
+            case 1:
+                // Draw four walls. TODO: Turn the wall into a class
+                this.wallOne = game.add.sprite(0,0, 'wall');
+                this.wallOne.width = this.world.width;
+                this.wallOne.height = 50;
+
+                this.wallTwo = game.add.sprite(0,this.world.height-50, 'wall');
+                this.wallTwo.width = this.world.width;
+                this.wallTwo.height = 50;
+
+                this.wallThree = game.add.sprite(this.world.width-50,50, 'wall');
+                this.wallThree.width = 50;
+                this.wallThree.height = this.world.height - 100;
+
+                this.wallFour = game.add.sprite(0,50, 'wall');
+                this.wallFour.width = 50;
+                this.wallFour.height = this.world.height - 100;
+
+                this.walls.add(this.wallOne);
+                this.walls.add(this.wallTwo);
+                this.walls.add(this.wallThree);
+                this.walls.add(this.wallFour);
+
+            break;
+        }
+
+      
+    },
+
+    serveDisc: function(){
+        // A sample helper function, to say, serve the disc at the beginning of a point.
     },
 
     quitGame: function () {
