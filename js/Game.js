@@ -67,26 +67,32 @@ Game.prototype = {
         switch (whichArena){
             case 1:
                 // Draw four walls.
+                var wallWidth = 20;
                 this.wallOne = new Wall(game,0,0);
                 this.wallOne.width = this.world.width;
-                this.wallOne.height = 50;
+                this.wallOne.height = wallWidth;
 
-                this.wallTwo = new Wall(game,0,this.world.height-50);
+                this.wallTwo = new Wall(game,0,this.world.height-wallWidth);
                 this.wallTwo.width = this.world.width;
-                this.wallTwo.height = 50;
+                this.wallTwo.height = wallWidth;
 
-                this.wallThree = new Wall(game,this.world.width-50,50);
-                this.wallThree.width = 50;
-                this.wallThree.height = this.world.height - 100;
+                this.wallThree = new Wall(game,this.world.width-wallWidth,wallWidth);
+                this.wallThree.width = wallWidth;
+                this.wallThree.height = this.world.height - wallWidth*2;
 
-                this.wallFour = new Wall(game,0,50);
-                this.wallFour.width = 50;
-                this.wallFour.height = this.world.height - 100;
+                this.wallFour = new Wall(game,0,wallWidth);
+                this.wallFour.width = wallWidth;
+                this.wallFour.height = this.world.height - wallWidth*2;
 
                 this.walls.add(this.wallOne);
                 this.walls.add(this.wallTwo);
                 this.walls.add(this.wallThree);
                 this.walls.add(this.wallFour);
+
+                this.net = new Net(game,this.world.width/2,wallWidth)
+                this.net.width = 5;
+                this.net.height = this.world.height - wallWidth*2;
+                this.game.add.existing(this.net);
 
             break;
         }      
