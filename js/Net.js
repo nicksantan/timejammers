@@ -5,7 +5,7 @@ var Net = function (game, x, y) {
 
     // Enable physics on Net
     game.physics.arcade.enable(this);
-    
+    this.body.immovable = true;
 
 };
 

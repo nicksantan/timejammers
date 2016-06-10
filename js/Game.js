@@ -44,13 +44,37 @@ Game.prototype = {
 
         // Create the applicable number of players based on choices made at the main menu.
         // For now, just create a test player.
-        testPlayer = new Player(game,0,0,1);
-        game.add.existing(testPlayer);
+        this.testPlayer = new Player(game,100,100,1);
+        this.testPlayerTwo = new Player(game,400,100,2);
+        
+
+
+        this.players = game.add.group();
+        this.players.add(this.testPlayer);
+        this.players.add(this.testPlayerTwo);
+
+        // for now, create a disc
+
+        this.disc = new Disc(game,100,100)
+        this.game.add.existing(this.disc);
+        this.disc.body.velocity.x = 50;
+        this.disc.body.velocity.y = 50;
     },
 
     update: function () {
-       // console.log("running?")
+       
+
+        // Manage collisions
+        
+        // Player vs. boundary collisions
+        game.physics.arcade.collide(this.players, this.walls, null, null, this);
+        game.physics.arcade.collide(this.players, this.net, null, null, this);
+
+        // Disc vs. boundary collisions
+        game.physics.arcade.collide(this.disc, this.walls, this.disc.bounceOffWall, null, this.disc)
+
     },
+
 
     // ----------------------------------------------------
     // Helper functions for Game.js

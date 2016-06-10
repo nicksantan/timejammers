@@ -1,14 +1,14 @@
 // Player.js: a class for an individual player
 var Player = function (game, x, y, playerIdentifier) {
 
-    Phaser.Sprite.call(this, game, 50, 50, 'dude');
-
+    Phaser.Sprite.call(this, game, x, y, 'dude');
+    this.anchor.setTo(0.5,0.5);
     // used to designate this as player 1, 2, 3, or 4
     this.playerIdentifier = playerIdentifier;
   
     // Enable physics on player
     game.physics.arcade.enable(this);
-   
+    
     // Assign correct keymappings
     this.assignControls(this.playerIdentifier); 
 
@@ -54,8 +54,10 @@ Player.prototype.update = function() {
     
     if (movingLeft){
         this.move("x", -1, diagonalFactor)
+        this.scale.x = 1;
     } else if (movingRight){
         this.move("x", 1, diagonalFactor)
+        this.scale.x = -1;
     } else {
         this.body.velocity.x = 0;
     }
@@ -84,6 +86,10 @@ Player.prototype.assignControls = function(whichPlayer){
             this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.Z);        
         break;
         case 2:
+            this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
+            this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.K);
+            this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.I);
+            this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.M);        
         break;
         case 3:
         break;

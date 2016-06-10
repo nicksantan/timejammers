@@ -5,7 +5,7 @@ var Wall = function (game, x, y) {
 
     // Enable physics on Wall
     game.physics.arcade.enable(this);
-    
+    this.body.immovable = true;
 
 };
 
