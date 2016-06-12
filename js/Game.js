@@ -44,8 +44,8 @@ Game.prototype = {
 
         // Create the applicable number of players based on choices made at the main menu.
         // For now, just create a test player.
-        this.testPlayer = new Player(game,100,100,1);
-        this.testPlayerTwo = new Player(game,400,100,2);
+        this.testPlayer = new Player(game,100,100,1, 1);
+        this.testPlayerTwo = new Player(game,500,100,2,2);
         
 
 
@@ -55,7 +55,7 @@ Game.prototype = {
 
         // for now, create a disc
 
-        this.disc = new Disc(game,100,100)
+        this.disc = new Disc(game,300,100)
         this.game.add.existing(this.disc);
         this.disc.body.velocity.x = 50;
         this.disc.body.velocity.y = 50;
@@ -71,7 +71,8 @@ Game.prototype = {
         game.physics.arcade.collide(this.players, this.net, null, null, this);
 
         // Disc vs. boundary collisions
-        game.physics.arcade.collide(this.disc, this.walls, this.disc.bounceOffWall, null, this.disc)
+        game.physics.arcade.overlap(this.disc, this.walls, this.disc.bounceOffWall, null, this.disc)
+
 
     },
 
@@ -92,19 +93,19 @@ Game.prototype = {
             case 1:
                 // Draw four walls.
                 var wallWidth = 20;
-                this.wallOne = new Wall(game,0,0);
+                this.wallOne = new Wall(game,0,0,0);
                 this.wallOne.width = this.world.width;
                 this.wallOne.height = wallWidth;
 
-                this.wallTwo = new Wall(game,0,this.world.height-wallWidth);
+                this.wallTwo = new Wall(game,0,this.world.height-wallWidth, 0);
                 this.wallTwo.width = this.world.width;
                 this.wallTwo.height = wallWidth;
 
-                this.wallThree = new Wall(game,this.world.width-wallWidth,wallWidth);
+                this.wallThree = new Wall(game,this.world.width-wallWidth,wallWidth, 5);
                 this.wallThree.width = wallWidth;
                 this.wallThree.height = this.world.height - wallWidth*2;
 
-                this.wallFour = new Wall(game,0,wallWidth);
+                this.wallFour = new Wall(game,0,wallWidth, 5);
                 this.wallFour.width = wallWidth;
                 this.wallFour.height = this.world.height - wallWidth*2;
 
@@ -121,7 +122,9 @@ Game.prototype = {
             break;
         }      
     },
-
+    scoreGoal: function(scoreValue){
+        console.log(scoreValue + " points were scored!")
+    },
     serveDisc: function(){
         // A sample helper function, to say, serve the disc at the beginning of a point.
     },

@@ -1,11 +1,14 @@
 // Wall.js: a class for a barrier to the playfield. This includes both scoring and non-scoring walls.
-var Wall = function (game, x, y) {
+var Wall = function (game, x, y, scoreValue) {
 
     Phaser.Sprite.call(this, game, x, y, 'wall');
 
     // Enable physics on Wall
     game.physics.arcade.enable(this);
     this.body.immovable = true;
+
+    // Assign point value to wall
+    this.scoreValue = scoreValue;
 
 };
 

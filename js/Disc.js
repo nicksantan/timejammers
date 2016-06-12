@@ -21,16 +21,22 @@ Disc.prototype.create = function(){
 };
 
 Disc.prototype.update = function() {
- console.log(this.body.velocity.y)
+
 };
 
 // ----------------------------------------------------
 // Helper functions for Disc.js
 // ----------------------------------------------------
 
-Disc.prototype.bounceOffWall = function(){
-	console.log("it was " + this.body.velocity.y);
-	this.body.velocity.y *= -1;
-	console.log("heyyy")
-	console.log(this.body.velocity.y)
+Disc.prototype.bounceOffWall = function(disc, wall){
+	// console.log("it was " + this.body.velocity.y);
+	if (wall.scoreValue == 0){
+		this.body.velocity.y *= -1;
+	} else {
+		this.kill();
+		game.state.states[game.state.current].scoreGoal(wall.scoreValue);
+	}
+
+	// console.log("heyyy")
+	// console.log(this.body.velocity.y)
 };
