@@ -93,7 +93,7 @@ Game.prototype = {
             case 1:
                 // Draw four walls.
                 var wallWidth = 5;
-                this.wallOne = new Wall(game,this.world.width/2,81);
+                this.wallOne = new Wall(game,this.world.width/2,81, 0);
                 this.wallOne.width = this.world.width;
                 this.wallOne.height = wallWidth;
 

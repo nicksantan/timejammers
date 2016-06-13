@@ -1,9 +1,9 @@
 // Player.js: a class for an individual player
 var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
 
-    Phaser.Sprite.call(this, game, x, y, 'player');
+    Phaser.Sprite.call(this, game, x, y, 'guber');
     this.anchor.setTo(0.5,0.5);
-
+    this.smoothed = false;
     // used to designate this as player 1, 2, 3, or 4
     this.playerIdentifier = playerIdentifier;
     
@@ -21,6 +21,7 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
 
     // Enable physics on player
     game.physics.arcade.enable(this);
+    this.body.drag.x = 2000;
     
     // Assign correct keymappings
     this.assignControls(this.playerIdentifier); 
@@ -33,7 +34,9 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     // Assign initial variable values
     this.canMove = true;
     this.hasDisc = false;
+    this.isDashing = false;
     this.justThrown = false;
+    this.primaryKeyPreviouslyHeld = false;
     this.catchTime = 0;
 
 };
@@ -50,6 +53,9 @@ Player.prototype.update = function() {
     game.physics.arcade.overlap(this, game.state.states[game.state.current].disc, this.catchDisc, null, this)
 
     this.checkInput();
+    this.endDash();
+
+   
 };
 
 // ----------------------------------------------------
@@ -65,14 +71,14 @@ Player.prototype.assignControls = function(whichPlayer){
             this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
             this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
             this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.Z);
-            this.throwKey = game.input.keyboard.addKey(Phaser.Keyboard.Q)        
+            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.Q)        
         break;
         case 2:
             this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
             this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.K);
             this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.I);
             this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.M);        
-            this.throwKey = game.input.keyboard.addKey(Phaser.Keyboard.U);        
+            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.U);        
         break;
         case 3:
         break;
@@ -122,10 +128,10 @@ Player.prototype.checkInput = function(){
     if (this.canMove){
         if (movingLeft){
             this.move("x", -1, diagonalFactor)
-            this.scale.x = 1;
+            this.scale.x = -1;
         } else if (movingRight){
             this.move("x", 1, diagonalFactor)
-            this.scale.x = -1;
+            this.scale.x = 1;
         } else {
             this.body.velocity.x = 0;
         }
@@ -139,26 +145,61 @@ Player.prototype.checkInput = function(){
         }
     }
 
-    if (this.hasDisc){
-        if (this.throwKey.isDown){
+    if (this.hasDisc && !this.isDashing){
+        if (this.primaryKey.isDown && !this.primaryKeyPreviouslyHeld){
 
             this.throwDisc(movingUp, movingDown, diagonalFactor);
+            this.primaryKeyPreviouslyHeld = true;
         }
 
+    } 
+
+    if (!this.hasDisc && !this.isDashing && this.canMove && !this.justThrown){
+        if (this.primaryKey.isDown && !this.primaryKeyPreviouslyHeld){
+            this.isDashing = true;
+            this.canMove = false;
+            if (movingUp){
+                this.body.velocity.y = -700 * diagonalFactor;
+            } else if (movingDown){
+                this.body.velocity.y = 700 * diagonalFactor;
+            }
+
+            if (movingLeft){
+                this.body.velocity.x= -700 * diagonalFactor;
+            } else if (movingRight){
+                this.body.velocity.x = 700 * diagonalFactor;
+            }
+
+            this.primaryKeyPreviouslyHeld = true;
+        }
+
+    }
+
+    if (this.primaryKey.isUp && this.primaryKeyPreviouslyHeld){
+        this.primaryKeyPreviouslyHeld = false;
     }
 }
 
 Player.prototype.catchDisc = function(player, disc){
     if (!this.justThrown){
         disc.kill();
-        this.body.velocity.x = 0;
-        this.body.velocity.y = 0;
+        // this.body.velocity.x = 0;
+        // this.body.velocity.y = 0;
         //TODO activate correct animation state
         this.canMove = false;
         this.hasDisc = true;
         // keep track of when the disc was caught
         this.catchTime = game.time.time;
 
+    }
+}
+
+Player.prototype.endDash = function(){
+    if (this.isDashing && this.body.velocity.x == 0 & this.body.velocity.y == 0){
+        this.isDashing = false;
+        if (!this.hasDisc){
+            this.canMove = true;
+        }
     }
 }
 
@@ -178,7 +219,7 @@ Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
         holdBonus = 1;
     } else {
         // will range from ~1.9 (fast release) to ~1 (slow release)
-        holdBonus = 1 + (1 - (holdTime / this.HOLDTHRESHOLD))
+        holdBonus = 2 + (1 - (holdTime / this.HOLDTHRESHOLD))
     }
 
    
