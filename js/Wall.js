@@ -2,6 +2,7 @@
 var Wall = function (game, x, y, scoreValue) {
 
     Phaser.Sprite.call(this, game, x, y, 'wall');
+    this.anchor.setTo(0.5,0.5);
 
     // Enable physics on Wall
     game.physics.arcade.enable(this);

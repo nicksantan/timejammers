@@ -1,8 +1,9 @@
 // Player.js: a class for an individual player
 var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
 
-    Phaser.Sprite.call(this, game, x, y, 'dude');
+    Phaser.Sprite.call(this, game, x, y, 'player');
     this.anchor.setTo(0.5,0.5);
+
     // used to designate this as player 1, 2, 3, or 4
     this.playerIdentifier = playerIdentifier;
     
@@ -25,13 +26,15 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     this.assignControls(this.playerIdentifier); 
 
     // Assign variables based on character chosen. For now, there are none.
-    this.SPEED = 100;
+    this.SPEED = 200;
     this.POWER = 200;
+    this.HOLDTHRESHOLD = 1000;
 
     // Assign initial variable values
     this.canMove = true;
     this.hasDisc = false;
     this.justThrown = false;
+    this.catchTime = 0;
 
 };
 
@@ -96,27 +99,27 @@ Player.prototype.checkInput = function(){
     var movingDown;
     var diagonalFactor;
 
+    if (this.leftKey.isDown){
+        movingLeft = true;
+    }
+    else if (this.rightKey.isDown){
+        movingRight = true;
+    } 
+
+    if (this.upKey.isDown){
+        movingUp = true;
+    }
+    else if (this.downKey.isDown){
+       movingDown = true;
+    } 
+
+    if ((movingLeft || movingRight) && (movingUp || movingDown)){
+        diagonalFactor = .75;
+    } else {
+        diagonalFactor = 1;
+    }
+    
     if (this.canMove){
-        if (this.leftKey.isDown){
-            movingLeft = true;
-        }
-        else if (this.rightKey.isDown){
-            movingRight = true;
-        } 
-
-        if (this.upKey.isDown){
-            movingUp = true;
-        }
-        else if (this.downKey.isDown){
-           movingDown = true;
-        } 
-
-        if ((movingLeft || movingRight) && (movingUp || movingDown)){
-            diagonalFactor = .75;
-        } else {
-            diagonalFactor = 1;
-        }
-        
         if (movingLeft){
             this.move("x", -1, diagonalFactor)
             this.scale.x = 1;
@@ -138,8 +141,8 @@ Player.prototype.checkInput = function(){
 
     if (this.hasDisc){
         if (this.throwKey.isDown){
-            // for now, just throw the damn disc.
-            this.throwDisc();
+
+            this.throwDisc(movingUp, movingDown, diagonalFactor);
         }
 
     }
@@ -153,18 +156,44 @@ Player.prototype.catchDisc = function(player, disc){
         //TODO activate correct animation state
         this.canMove = false;
         this.hasDisc = true;
+        // keep track of when the disc was caught
+        this.catchTime = game.time.time;
+
     }
 }
 
-Player.prototype.throwDisc = function(){
+Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
     this.canMove = true; 
     this.hasDisc = false;
     var theDisc = game.state.states[game.state.current].disc;
     theDisc.revive();
     theDisc.position.x = this.position.x;
     theDisc.position.y = this.position.y;
-    theDisc.body.velocity.y = 0;
-    theDisc.body.velocity.x = this.throwDirection * this.POWER;
+
+    // determine how long the character held the disc.
+    var holdTime = game.time.time - this.catchTime;
+    var holdBonus;
+    console.log("hold time was " + holdTime);
+    if (holdTime > this.HOLDTHRESHOLD){
+        holdBonus = 1;
+    } else {
+        // will range from ~1.9 (fast release) to ~1 (slow release)
+        holdBonus = 1 + (1 - (holdTime / this.HOLDTHRESHOLD))
+    }
+
+   
+    // get direction from keys pressed
+    var yVel;
+    if (movingUp){
+        yVel = -1 * this.POWER;
+    } else if (movingDown){
+        yVel = 1 * this.POWER;
+    } else {
+        yVel = 0;
+    }
+
+    theDisc.body.velocity.y = yVel * holdBonus * diagonalFactor;
+    theDisc.body.velocity.x = this.throwDirection * holdBonus * this.POWER * diagonalFactor;
     this.justThrown = true;
     game.time.events.add(Phaser.Timer.SECOND, function(){this.justThrown = false}, this);
 

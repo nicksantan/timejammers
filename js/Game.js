@@ -92,20 +92,20 @@ Game.prototype = {
         switch (whichArena){
             case 1:
                 // Draw four walls.
-                var wallWidth = 20;
-                this.wallOne = new Wall(game,0,0,0);
+                var wallWidth = 5;
+                this.wallOne = new Wall(game,this.world.width/2,81);
                 this.wallOne.width = this.world.width;
                 this.wallOne.height = wallWidth;
 
-                this.wallTwo = new Wall(game,0,this.world.height-wallWidth, 0);
+                this.wallTwo = new Wall(game,this.world.width/2,this.world.height-81, 0);
                 this.wallTwo.width = this.world.width;
                 this.wallTwo.height = wallWidth;
 
-                this.wallThree = new Wall(game,this.world.width-wallWidth,wallWidth, 5);
+                this.wallThree = new Wall(game,this.world.width-89,this.world.height/2, 5);
                 this.wallThree.width = wallWidth;
                 this.wallThree.height = this.world.height - wallWidth*2;
 
-                this.wallFour = new Wall(game,0,wallWidth, 5);
+                this.wallFour = new Wall(game,89,this.world.height/2, 5);
                 this.wallFour.width = wallWidth;
                 this.wallFour.height = this.world.height - wallWidth*2;
 
