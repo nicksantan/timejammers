@@ -59,6 +59,8 @@ Game.prototype = {
         this.game.add.existing(this.disc);
         this.disc.body.velocity.x = 50;
         this.disc.body.velocity.y = 50;
+
+        game.stage.smoothed = false;
     },
 
     update: function () {
