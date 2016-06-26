@@ -52,9 +52,10 @@ Player.prototype.constructor = Player;
 // ----------------------------------------------------
 
 
-Player.prototype.update = function() {
-    game.physics.arcade.overlap(this, game.state.states[game.state.current].disc, this.catchDisc, null, this)
-
+Player.prototype.update = function() { 
+    if (game.state.states[game.state.current].disc.catchable){
+        game.physics.arcade.overlap(this, game.state.states[game.state.current].disc, this.catchDisc, null, this)
+    }
     this.checkInput();
     this.endDash();
 
@@ -74,24 +75,16 @@ Player.prototype.assignControls = function(whichPlayer){
             this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
             this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
             this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
-<<<<<<< HEAD
             this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.Q)   
             this.secondaryKey =game.input.keyboard.addKey(Phaser.Keyboard.E);     
-=======
-            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.Q)        
->>>>>>> 551b3dd3d15aca9f4132e481c4a933f6cda36dd8
         break;
         case 2:
             this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
             this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.L);
             this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.I);
             this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.K);        
-<<<<<<< HEAD
             this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.U); 
             this.secondaryKey =game.input.keyboard.addKey(Phaser.Keyboard.O);            
-=======
-            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.U);        
->>>>>>> 551b3dd3d15aca9f4132e481c4a933f6cda36dd8
         break;
         case 3:
         break;
@@ -193,6 +186,10 @@ Player.prototype.checkInput = function(){
     if (this.primaryKey.isUp && this.primaryKeyPreviouslyHeld){
         this.primaryKeyPreviouslyHeld = false;
     }
+
+     if (this.secondaryKey.isUp && this.secondaryKeyPreviouslyHeld){
+        this.secondaryKeyPreviouslyHeld = false;
+    }
 }
 
 Player.prototype.catchDisc = function(player, disc){
@@ -246,30 +243,49 @@ Player.prototype.calculateHoldBonus = function(){
 Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
     var theDisc = this.reviveDisc();
     var holdBonus = this.calculateHoldBonus();
-
+    console.log ("lobbing")
     // choose a 'landing spot' for the lob
     var destY;
+    console.log("height is " + game.world.height)
     if (movingUp) {
-        //TODO: Get bounds of the level here. Right now, use the hardcoded values y = 81 to y = this.world.height - 81
-        destY = 81 + Math.random()*((1/3) * this.world.height-162);
-    } else (movingDown){
-        destY = 81 + ((2/3) * this.world.height-162) + Math.random()*((1/3) * this.world.height-162);
+        //TODO: Get bounds of the level here. Right now, use the hardcoded values y = 81 to y = game.world.height - 81
+        destY = 81 + Math.random()*((1/3) * game.world.height-162);
+    } else if (movingDown){
+        destY = 81 + ((2/3) * game.world.height-162) + Math.random()*((1/3) * game.world.height-162);
+    } else {
+        destY = game.world.height/2 + Math.random()*100 - 50;
+
     }
 
-    //TODO: Get bounds of the level here. Right now use the hardcoded value of this.world.width-89 as the far net
+    //TODO: Get bounds of the level here. Right now use the hardcoded value of game.world.width-89 as the far net
     var destX;
     switch(this.throwDirection){
         case 1:
-            destX = (this.world.width-50) + (holdBonus * 20)
+            destX = (game.world.width-50) + (holdBonus * 20)
         break;
         case -1:
             destX = 139 - (holdBonus*20);
         break;
     }
 
-    // create a retical at the location
-    
+    // create a reticle at the location
+    this.reticle = new Reticle(game,destX, destY);
+    this.game.add.existing(this.reticle);
 
+
+    // determine direction to the reticle
+     distanceVec = new Phaser.Point(this.x - destX, this.y - destY);
+     normalizedVec = distanceVec.normalize();
+
+    theDisc.body.velocity.y = distanceVec.y * -300;
+    theDisc.body.velocity.x = distanceVec.x * -300;
+    this.justThrown = true;
+    game.time.events.add(Phaser.Timer.SECOND*.5, function(){this.justThrown = false}, this);
+    theDisc.catchable = false;
+    theDisc.nextX = destX;
+    theDisc.nextY = destY;
+
+    theDisc.distanceToReticle = new Phaser.Point(this.x - destX, this.y - destY).getMagnitude();
 
 
 }
@@ -292,7 +308,7 @@ Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
     theDisc.body.velocity.y = yVel * holdBonus * diagonalFactor;
     theDisc.body.velocity.x = this.throwDirection * holdBonus * this.POWER * diagonalFactor;
     this.justThrown = true;
-    game.time.events.add(Phaser.Timer.SECOND, function(){this.justThrown = false}, this);
+    game.time.events.add(Phaser.Timer.SECOND*.5, function(){this.justThrown = false}, this);
 
 
 

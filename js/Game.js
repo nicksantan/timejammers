@@ -73,7 +73,9 @@ Game.prototype = {
         game.physics.arcade.collide(this.players, this.net, null, null, this);
 
         // Disc vs. boundary collisions
-        game.physics.arcade.overlap(this.disc, this.walls, this.disc.bounceOffWall, null, this.disc)
+        if (this.disc.catchable){
+            game.physics.arcade.overlap(this.disc, this.walls, this.disc.bounceOffWall, null, this.disc)
+        }
 
 
     },

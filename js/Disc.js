@@ -1,12 +1,20 @@
 // Disc.js: a class for an individual Disc
 var Disc = function (game, x, y) {
 
-    Phaser.Sprite.call(this, game, x, y, 'disc');
+    Phaser.Sprite.call(this, game, x, y, 'disc-normal');
     this.anchor.setTo(0.5,0.5);
 
     // Enable physics on disc
     game.physics.arcade.enable(this);
-    
+    this.animations.add('spin');
+    this.animations.play('spin', 15, true);
+
+
+    this.catchable = true;
+    this.nextX = 0;
+    this.nextY = 0;
+    this.distanceToReticle = 0;
+
 
 };
 
@@ -18,10 +26,23 @@ Disc.prototype.constructor = Disc;
 // ----------------------------------------------------
 
 Disc.prototype.create = function(){
-
+	
 };
 
 Disc.prototype.update = function() {
+	if (!this.catchable){
+		
+
+		var currentDistanceToReticle = new Phaser.Point(this.x - this.nextX, this.y - this.nextY);
+		console.log(currentDistanceToReticle.getMagnitude() +" + " + this.distanceToReticle/2)
+		if (currentDistanceToReticle.getMagnitude() <= this.distanceToReticle/2){
+			this.scale.x -= .06;
+			this.scale.y -= .06;
+		} else {
+			this.scale.x += .06;
+			this.scale.y += .06;
+		}
+	}
 
 };
 
