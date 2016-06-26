@@ -68,17 +68,19 @@ Player.prototype.assignControls = function(whichPlayer){
     switch (whichPlayer){
         case 1:
             this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
-            this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
+            this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
             this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
-            this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.Z);
-            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.Q)        
+            this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
+            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.Q)   
+            this.secondaryKey =game.input.keyboard.addKey(Phaser.Keyboard.E);     
         break;
         case 2:
             this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
-            this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.K);
+            this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.L);
             this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.I);
-            this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.M);        
-            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.U);        
+            this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.K);        
+            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.U); 
+            this.secondaryKey =game.input.keyboard.addKey(Phaser.Keyboard.O);            
         break;
         case 3:
         break;
@@ -147,9 +149,11 @@ Player.prototype.checkInput = function(){
 
     if (this.hasDisc && !this.isDashing){
         if (this.primaryKey.isDown && !this.primaryKeyPreviouslyHeld){
-
             this.throwDisc(movingUp, movingDown, diagonalFactor);
             this.primaryKeyPreviouslyHeld = true;
+        } else if (this.secondaryKey.isDown && !this.secondaryKeyPreviouslyHeld){
+            this.lobDisc(movingUp, movingDown, diagonalFactor);
+            this.secondaryKeyPreviouslyHeld = true;
         }
 
     } 
@@ -203,18 +207,20 @@ Player.prototype.endDash = function(){
     }
 }
 
-Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
+Player.prototype.reviveDisc = function(){
     this.canMove = true; 
     this.hasDisc = false;
     var theDisc = game.state.states[game.state.current].disc;
     theDisc.revive();
     theDisc.position.x = this.position.x;
     theDisc.position.y = this.position.y;
+    return theDisc;
+}
 
+Player.prototype.calculateHoldBonus = function(){
     // determine how long the character held the disc.
     var holdTime = game.time.time - this.catchTime;
     var holdBonus;
-    console.log("hold time was " + holdTime);
     if (holdTime > this.HOLDTHRESHOLD){
         holdBonus = 1;
     } else {
@@ -222,6 +228,45 @@ Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
         holdBonus = 2 + (1 - (holdTime / this.HOLDTHRESHOLD))
     }
 
+    return holdBonus;
+
+}
+
+Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
+    var theDisc = this.reviveDisc();
+    var holdBonus = this.calculateHoldBonus();
+
+    // choose a 'landing spot' for the lob
+    var destY;
+    if (movingUp) {
+        //TODO: Get bounds of the level here. Right now, use the hardcoded values y = 81 to y = this.world.height - 81
+        destY = 81 + Math.random()*((1/3) * this.world.height-162);
+    } else (movingDown){
+        destY = 81 + ((2/3) * this.world.height-162) + Math.random()*((1/3) * this.world.height-162);
+    }
+
+    //TODO: Get bounds of the level here. Right now use the hardcoded value of this.world.width-89 as the far net
+    var destX;
+    switch(this.throwDirection){
+        case 1:
+            destX = (this.world.width-50) + (holdBonus * 20)
+        break;
+        case -1:
+            destX = 139 - (holdBonus*20);
+        break;
+    }
+
+    // create a retical at the location
+    
+
+
+
+}
+
+Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
+    var theDisc = this.reviveDisc();
+
+    var holdBonus = this.calculateHoldBonus();
    
     // get direction from keys pressed
     var yVel;
