@@ -24,7 +24,7 @@ Preloader.prototype = {
 		this.load.spritesheet('baddie', 'assets/baddie.png', 32, 32);
 		this.load.spritesheet('dude', 'assets/dude.png', 32, 48);	
 		this.load.spritesheet('disc-normal', 'assets/disc-normal.png', 28, 28);	
-
+		this.load.spritesheet('sirknight4', 'assets/knight4.png', 87, 96)
 	},
 
 	create: function () {

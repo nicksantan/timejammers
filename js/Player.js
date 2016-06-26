@@ -1,7 +1,7 @@
 // Player.js: a class for an individual player
 var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
 
-    Phaser.Sprite.call(this, game, x, y, 'guber');
+    Phaser.Sprite.call(this, game, x, y, 'sirknight4');
     this.anchor.setTo(0.5,0.5);
     this.smoothed = false;
     // used to designate this as player 1, 2, 3, or 4
@@ -30,6 +30,9 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     this.SPEED = 200;
     this.POWER = 200;
     this.HOLDTHRESHOLD = 1000;
+
+    this.animations.add('walk');
+    this.animations.play('walk', 5, true);
 
     // Assign initial variable values
     this.canMove = true;
@@ -71,16 +74,24 @@ Player.prototype.assignControls = function(whichPlayer){
             this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
             this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
             this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
+<<<<<<< HEAD
             this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.Q)   
             this.secondaryKey =game.input.keyboard.addKey(Phaser.Keyboard.E);     
+=======
+            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.Q)        
+>>>>>>> 551b3dd3d15aca9f4132e481c4a933f6cda36dd8
         break;
         case 2:
             this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
             this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.L);
             this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.I);
             this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.K);        
+<<<<<<< HEAD
             this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.U); 
             this.secondaryKey =game.input.keyboard.addKey(Phaser.Keyboard.O);            
+=======
+            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.U);        
+>>>>>>> 551b3dd3d15aca9f4132e481c4a933f6cda36dd8
         break;
         case 3:
         break;
