@@ -42,6 +42,13 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     this.primaryKeyPreviouslyHeld = false;
     this.catchTime = 0;
 
+    // create a reticle to use later
+    this.reticle = game.add.sprite(0, 0, 'reticle');
+    this.reticle.anchor.setTo(0.5,0.5)
+    this.reticle.animations.add('fire');
+
+    this.reticle.kill();
+
 };
 
 Player.prototype = Object.create(Phaser.Sprite.prototype);
@@ -268,10 +275,13 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
         break;
     }
 
-    // create a reticle at the location
-    this.reticle = new Reticle(game,destX, destY);
-    this.game.add.existing(this.reticle);
 
+    // move the reticle to the location    
+    this.reticle.position.x = destX;
+    this.reticle.position.y = destY;
+    this.reticle.revive();
+    this.reticle.animations.play('fire', 15, true);
+    this.reticle.animations.currentAnim.onComplete.add(function () {  this.reticle.kill();}, this);
 
     // determine direction to the reticle
      distanceVec = new Phaser.Point(this.x - destX, this.y - destY);

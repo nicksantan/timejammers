@@ -26,6 +26,7 @@ Preloader.prototype = {
 		this.load.spritesheet('disc-normal', 'assets/disc-normal.png', 28, 28);	
 		this.load.spritesheet('sirknight4', 'assets/knight4.png', 87, 96)
 		this.load.spritesheet('spark', 'assets/sparksheet.png', 66, 33)
+		this.load.spritesheet('reticle', 'assets/reticlesheet.png', 30, 30)
 
 	},
 
