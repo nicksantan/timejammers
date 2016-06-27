@@ -66,6 +66,10 @@ Player.prototype.update = function() {
     this.checkInput();
     this.endDash();
 
+    //TODO: Find a better way to do this
+    if (game.state.states[game.state.current].disc.catchable){
+        this.reticle.kill();
+    }
    
 };
 
@@ -268,10 +272,10 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
     var destX;
     switch(this.throwDirection){
         case 1:
-            destX = (game.world.width-50) + (holdBonus * 20)
+            destX = (game.world.width-200) + (holdBonus * 20)
         break;
         case -1:
-            destX = 139 - (holdBonus*20);
+            destX = 200 - (holdBonus*20);
         break;
     }
 
@@ -281,7 +285,7 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
     this.reticle.position.y = destY;
     this.reticle.revive();
     this.reticle.animations.play('fire', 15, true);
-    this.reticle.animations.currentAnim.onComplete.add(function () {  this.reticle.kill();}, this);
+    //this.reticle.animations.currentAnim.onComplete.add(function () {  this.reticle.kill();}, this);
 
     // determine direction to the reticle
      distanceVec = new Phaser.Point(this.x - destX, this.y - destY);

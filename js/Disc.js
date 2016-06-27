@@ -46,6 +46,14 @@ Disc.prototype.update = function() {
 		if (currentDistanceToReticle.getMagnitude() <= this.distanceToReticle/2){
 			this.scale.x -= .06;
 			this.scale.y -= .06;
+
+			if ((this.scale.x - 1) <= .06){
+				this.scale.x = 1;
+				this.scale.y = 1;
+				this.catchable = true;
+				this.body.velocity.x = 0;
+				this.body.velocity.y = 0;
+			}
 		} else {
 			this.scale.x += .06;
 			this.scale.y += .06;
