@@ -10,10 +10,15 @@ var Disc = function (game, x, y) {
     this.animations.play('spin', 15, true);
 
 
+    this.GROUND_TIME_BEFORE_MISS = .5;
+
     this.catchable = true;
+    this.mayBeMissed = false;
+    this.missed = false;
     this.nextX = 0;
     this.nextY = 0;
     this.distanceToReticle = 0;
+
 
     this.spark = game.add.sprite(0, 0, 'spark');
     this.spark.anchor.setTo(0.5,0.5)
@@ -38,7 +43,8 @@ Disc.prototype.create = function(){
 };
 
 Disc.prototype.update = function() {
-	if (!this.catchable){
+
+	if (!this.catchable && !this.missed && !this.mayBeMissed && this.isBeingLobbed){
 		
 
 		var currentDistanceToReticle = new Phaser.Point(this.x - this.nextX, this.y - this.nextY);
@@ -51,12 +57,33 @@ Disc.prototype.update = function() {
 				this.scale.x = 1;
 				this.scale.y = 1;
 				this.catchable = true;
+				this.mayBeMissed = true;
+				this.isBeingLobbed = false;
+				console.log("may be missed set to true")
 				this.body.velocity.x = 0;
 				this.body.velocity.y = 0;
+				this.animations.stop();
+				//check if this is caught in X seconds. If not, make it uncatchable and send a message to score a point for a player.
+				//TODO: FIX FIRST!
+				//game.time.events.add(Phaser.Timer.SECOND * this.GROUND_TIME_BEFORE_MISS, this.scoreMiss, this);
 			}
 		} else {
 			this.scale.x += .06;
 			this.scale.y += .06;
+		}
+	}
+
+	if (this.mayBeMissed){
+		
+		this.mayBeMissedTimer += 1;
+	//	console.log(this.mayBeMissed);
+		console.log(this.mayBeMissedTimer)
+		if (this.mayBeMissedTimer > 30){ // Find a better way to do this magic number
+			
+			this.mayBeMissed = false;
+			this.missed = true;
+			this.catchable = false;
+			this.scoreMiss();
 		}
 	}
 
@@ -92,21 +119,58 @@ Disc.prototype.bounceOffWall = function(disc, wall){
 		this.spark.animations.play('fire', 15, false);
 		this.spark.animations.currentAnim.onComplete.add(function () {	this.spark.kill();}, this);
 	} else {
-		this.body.velocity.x = 0;
-		this.body.velocity.y = 0;
-		this.kill();
-		game.state.states[game.state.current].scoreGoal(wall.scoreValue);
-		this.x = this.game.width/2;
-		this.y = this.game.height/2;
-		this.revive();
-		game.time.events.add(Phaser.Timer.SECOND, this.serve, this);
+		
+		game.state.states[game.state.current].scoreGoal(wall.scoreValue, wall.whichSide);
+		this.resetDisc(wall.whichSide);
 	}
 
 	// console.log("heyyy")
 	// console.log(this.body.velocity.y)
 };
 
-Disc.prototype.serve = function(){
+Disc.prototype.resetDisc = function(whichSide){
+	this.body.velocity.x = 0;
+	this.body.velocity.y = 0;
+	this.kill();
+	this.x = this.game.width/2;
+	this.y = this.game.height/2;
+	this.animations.play('spin', 15, true);
+	this.revive();
+	
+	this.missed = false;
+	game.time.events.add(Phaser.Timer.SECOND * 2, function(){this.serve(whichSide)}, this);
+};
+
+Disc.prototype.pickUp = function(){
+	this.mayBeMissed = false;
+    this.mayBeMissedTimer = 0;
+}
+Disc.prototype.scoreMiss = function(){
+	this.catchable = false; 
+	
+	
+	var sideScoredOn;
+	if (this.x >= this.game.width/2){
+		sideScoredOn = 2;
+	} else {
+		sideScoredOn = 1;
+	}
+	game.time.events.add(Phaser.Timer.SECOND * 2, function(){game.state.states[game.state.current].scoreGoal(2, sideScoredOn); this.resetDisc(sideScoredOn)}, this);
+	
+
+};
+
+
+Disc.prototype.serve = function(whichSide){
 	console.log("serve!")
-	this.body.velocity.x = Math.random()*500 - 250;
+	this.catchable = true;
+	switch(whichSide){
+		case 1:
+			this.body.velocity.x = -400;
+		break;
+		case 2: 
+			this.body.velocity.x = 400;
+		break;
+		
+	}
 }

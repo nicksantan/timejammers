@@ -23,5 +23,5 @@ Reticle.prototype.update = function() {
 };
 
 // ----------------------------------------------------
-// Helper functions for Wall.js
+// Helper functions for Reticle.js
 // ----------------------------------------------------

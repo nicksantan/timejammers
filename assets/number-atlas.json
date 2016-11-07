@@ -1,0 +1,180 @@
+{"frames": {
+
+"score-0.png":
+{
+	"frame": {"x":1,"y":273,"w":102,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":102,"h":66},
+	"sourceSize": {"w":102,"h":66}
+},
+"score-1.png":
+{
+	"frame": {"x":105,"y":273,"w":79,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":79,"h":66},
+	"sourceSize": {"w":79,"h":66}
+},
+"score-2.png":
+{
+	"frame": {"x":1,"y":69,"w":105,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":105,"h":66},
+	"sourceSize": {"w":105,"h":66}
+},
+"score-3.png":
+{
+	"frame": {"x":108,"y":69,"w":105,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":105,"h":66},
+	"sourceSize": {"w":105,"h":66}
+},
+"score-4.png":
+{
+	"frame": {"x":1,"y":1,"w":106,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":106,"h":66},
+	"sourceSize": {"w":106,"h":66}
+},
+"score-5.png":
+{
+	"frame": {"x":109,"y":1,"w":106,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":106,"h":66},
+	"sourceSize": {"w":106,"h":66}
+},
+"score-6.png":
+{
+	"frame": {"x":1,"y":137,"w":105,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":105,"h":66},
+	"sourceSize": {"w":105,"h":66}
+},
+"score-7.png":
+{
+	"frame": {"x":108,"y":137,"w":105,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":105,"h":66},
+	"sourceSize": {"w":105,"h":66}
+},
+"score-8.png":
+{
+	"frame": {"x":1,"y":205,"w":105,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":105,"h":66},
+	"sourceSize": {"w":105,"h":66}
+},
+"score-9.png":
+{
+	"frame": {"x":108,"y":205,"w":105,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":105,"h":66},
+	"sourceSize": {"w":105,"h":66}
+},
+"score-10.png":
+{
+	"frame": {"x":1,"y":341,"w":79,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":79,"h":66},
+	"sourceSize": {"w":79,"h":66}
+},
+"score-11.png":
+{
+	"frame": {"x":186,"y":273,"w":52,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":52,"h":66},
+	"sourceSize": {"w":52,"h":66}
+},
+"score-12.png":
+{
+	"frame": {"x":1,"y":409,"w":78,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":78,"h":66},
+	"sourceSize": {"w":78,"h":66}
+},
+"score-13.png":
+{
+	"frame": {"x":81,"y":409,"w":78,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":78,"h":66},
+	"sourceSize": {"w":78,"h":66}
+},
+"score-14.png":
+{
+	"frame": {"x":82,"y":341,"w":78,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":78,"h":66},
+	"sourceSize": {"w":78,"h":66}
+},
+"score-15.png":
+{
+	"frame": {"x":161,"y":409,"w":78,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":78,"h":66},
+	"sourceSize": {"w":78,"h":66}
+},
+"score-16.png":
+{
+	"frame": {"x":162,"y":341,"w":78,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":78,"h":66},
+	"sourceSize": {"w":78,"h":66}
+},
+"set-count-0.png":
+{
+	"frame": {"x":217,"y":1,"w":21,"h":33},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":21,"h":33},
+	"sourceSize": {"w":21,"h":33}
+},
+"set-count-1.png":
+{
+	"frame": {"x":215,"y":106,"w":7,"h":33},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":7,"h":33},
+	"sourceSize": {"w":7,"h":33}
+},
+"set-count-2.png":
+{
+	"frame": {"x":217,"y":36,"w":21,"h":33},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":21,"h":33},
+	"sourceSize": {"w":21,"h":33}
+},
+"set-count-3.png":
+{
+	"frame": {"x":215,"y":71,"w":21,"h":33},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":21,"h":33},
+	"sourceSize": {"w":21,"h":33}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "number-atlas.png",
+	"format": "RGBA8888",
+	"size": {"w":241,"h":476},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:a265e84d15350a90bad596270d629b32:25234c54155dd0040caae45c87bfa9c8:f22982bc09e5ce9886ac6baeb310e58d$"
+}
+}

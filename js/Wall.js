@@ -1,5 +1,5 @@
 // Wall.js: a class for a barrier to the playfield. This includes both scoring and non-scoring walls.
-var Wall = function (game, x, y, scoreValue) {
+var Wall = function (game, x, y, scoreValue, whichSide) {
 
     Phaser.Sprite.call(this, game, x, y, 'wall');
     this.anchor.setTo(0.5,0.5);
@@ -11,6 +11,8 @@ var Wall = function (game, x, y, scoreValue) {
     // Assign point value to wall
     this.scoreValue = scoreValue;
 
+    // Keep track of which team this wall belongs to
+    this.whichSide = whichSide;
 };
 
 Wall.prototype = Object.create(Phaser.Sprite.prototype);

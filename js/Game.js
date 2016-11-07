@@ -44,8 +44,8 @@ Game.prototype = {
 
         // Create the applicable number of players based on choices made at the main menu.
         // For now, just create a test player.
-        this.testPlayer = new Player(game,100,100,1, 1);
-        this.testPlayerTwo = new Player(game,500,100,2,2);
+        this.testPlayer = new Player(game,200,200,1, 1);
+        this.testPlayerTwo = new Player(game,500,200,2,2);
         
 
 
@@ -61,6 +61,19 @@ Game.prototype = {
         this.disc.body.velocity.y = 50;
 
         game.stage.smoothed = false;
+
+        this.checkingForServe = true;
+
+        // Keep track of this game's score and set count
+        this.set = 1
+        this.teamOneScore = 0;
+        this.teamTwoScore = 0;
+        this.teamOneSet = 0;
+        this.teamTwoSet = 0;
+
+        this.scoreOverlay = new ScoreOverlay(game);
+
+        this.scoreOverlay.showOverlay();
     },
 
     update: function () {
@@ -73,9 +86,21 @@ Game.prototype = {
         game.physics.arcade.collide(this.players, this.net, null, null, this);
 
         // Disc vs. boundary collisions
+        // console.log(this.disc.catchable);
         if (this.disc.catchable){
             game.physics.arcade.overlap(this.disc, this.walls, this.disc.bounceOffWall, null, this.disc)
         }
+
+        // Doesn't work right now
+
+        // if (this.checkingForServe){
+        //     console.log("Checking for serve")
+        //     if (this.checkForServe()){
+        //         this.checkingForServe = false;
+        //         this.disc.serve();
+        //     }
+            
+        // }
 
 
     },
@@ -84,6 +109,18 @@ Game.prototype = {
     // ----------------------------------------------------
     // Helper functions for Game.js
     // ----------------------------------------------------
+
+    checkForServe: function(){
+        console.log("wooo")
+        var readyToServe = false;
+        this.players.forEach(function(plyr) {
+            console.log("at start? " + plyr.atStartPosition);
+            if(!plyr.atStartPosition){
+               return false;
+            } 
+        }, this);
+       return true;
+    },
 
     createArena: function(whichArena){
 
@@ -105,11 +142,11 @@ Game.prototype = {
                 this.wallTwo.width = this.world.width;
                 this.wallTwo.height = wallWidth;
 
-                this.wallThree = new Wall(game,this.world.width-89,this.world.height/2, 5);
+                this.wallThree = new Wall(game,this.world.width-89,this.world.height/2, 5, 2);
                 this.wallThree.width = wallWidth;
                 this.wallThree.height = this.world.height - wallWidth*2;
 
-                this.wallFour = new Wall(game,89,this.world.height/2, 5);
+                this.wallFour = new Wall(game,89,this.world.height/2, 5, 1);
                 this.wallFour.width = wallWidth;
                 this.wallFour.height = this.world.height - wallWidth*2;
 
@@ -126,13 +163,56 @@ Game.prototype = {
             break;
         }      
     },
-    scoreGoal: function(scoreValue){
-        console.log(scoreValue + " points were scored!")
+    scoreGoal: function(scoreValue, whichTeamGotScoredOn){
+        console.log(scoreValue + " points were scored against team " + whichTeamGotScoredOn);
+        switch(whichTeamGotScoredOn){
+            case 1:
+                this.teamTwoScore += scoreValue;
+                this.scoreOverlay.updateScore(2,this.teamTwoScore);
+            break;
+            case 2:
+                this.teamOneScore += scoreValue;
+                this.scoreOverlay.updateScore(1,this.teamOneScore);
+            break;
+        }
+        this.scoreOverlay.showOverlay();
+        console.log("Team 1: " + this.teamOneScore + " Team 2: " + this.teamTwoScore);
+        this.players.forEach(function(plyr) {
+            plyr.returningToStartPosition = true;  
+        }, this);
+
+        this.checkingForServe = true;
+
+        // Check for set win
+        if (this.teamOneScore >= 12){
+            this.teamOneSet += 1;
+            this.scoreOverlay.updateSet(1,this.teamOneSet);
+            game.time.events.add(Phaser.Timer.SECOND * 2, this.resetScoreOverlay, this);
+
+        }
+        if (this.teamTwoScore >= 12){
+            this.teamTwoSet += 1;
+            this.scoreOverlay.updateSet(2,this.teamTwoSet);
+            game.time.events.add(Phaser.Timer.SECOND * 2, this.resetScoreOverlay, this);
+           
+        }
     },
+
+    resetScoreOverlay: function(){
+        this.teamTwoScore = 0;
+        this.teamOneScore = 0;
+        this.scoreOverlay.updateScore(1,0);
+        this.scoreOverlay.updateScore(2,0);
+    },
+
     serveDisc: function(){
         // A sample helper function, to say, serve the disc at the beginning of a point.
     },
 
+    scoreMiss: function(){
+        // Manage what happens when a player misses a lobbed disc.
+
+    },
     quitGame: function () {
 
         //  Here you should destroy anything you no longer need.

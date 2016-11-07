@@ -1,7 +1,7 @@
 // Player.js: a class for an individual player
 var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
 
-    Phaser.Sprite.call(this, game, x, y, 'sirknight4');
+    Phaser.Sprite.call(this, game, x, y, 'guber-standing');
     this.anchor.setTo(0.5,0.5);
     this.smoothed = false;
     // used to designate this as player 1, 2, 3, or 4
@@ -33,6 +33,8 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
 
     this.animations.add('walk');
     this.animations.play('walk', 5, true);
+    this.throwAnimation = this.animations.add('throw', [5,4,3,2,1,0], 15, false);
+    this.throwAnimation.onComplete.add(this.finishThrow, this);
 
     // Assign initial variable values
     this.canMove = true;
@@ -41,6 +43,9 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     this.justThrown = false;
     this.primaryKeyPreviouslyHeld = false;
     this.catchTime = 0;
+    this.returningToStartPosition = false;
+    this.atStartPosition = false;
+    this.returnToStartRate = 3;
 
     // create a reticle to use later
     this.reticle = game.add.sprite(0, 0, 'reticle');
@@ -60,11 +65,17 @@ Player.prototype.constructor = Player;
 
 
 Player.prototype.update = function() { 
-    if (game.state.states[game.state.current].disc.catchable){
-        game.physics.arcade.overlap(this, game.state.states[game.state.current].disc, this.catchDisc, null, this)
+    
+    if (!this.returningToStartPosition){
+       
+            game.physics.arcade.overlap(this, game.state.states[game.state.current].disc, this.catchDisc, null, this)
+          //  console.log("Checking for collision with disc")
+        
+        this.checkInput();
+        this.endDash();
+    } else {
+        this.returnToStartPosition();
     }
-    this.checkInput();
-    this.endDash();
 
     //TODO: Find a better way to do this
     if (game.state.states[game.state.current].disc.catchable){
@@ -112,6 +123,37 @@ Player.prototype.move = function(dimension, direction, diagonalFactor){
         case "y":
             this.body.velocity.y = direction * this.SPEED * diagonalFactor;
         break;
+    }
+}
+
+Player.prototype.returnToStartPosition = function(){
+    var startY = game.world.height/2;
+    var startX;
+
+    switch (this.teamIdentifier){
+        case 1:
+            startX = game.world.width/4;
+        break;
+        case 2:
+            startX = 3*(game.world.width/4);
+        break;
+    }
+
+    if (this.x < startX){
+        this.position.x += this.returnToStartRate;
+    } else {
+        this.position.x -= this.returnToStartRate;
+    }
+
+    if (this.y < startY){
+        this.position.y += this.returnToStartRate;
+    } else {
+        this.position.y -= this.returnToStartRate;
+    }
+
+    if (Math.abs(this.position.x - startX) < this.returnToStartRate + 1 && Math.abs(this.position.y - startY) < this.returnToStartRate + 1){
+        //this.atStartPosition = true;
+        this.returningToStartPosition = false;
     }
 }
 
@@ -205,14 +247,33 @@ Player.prototype.checkInput = function(){
 
 Player.prototype.catchDisc = function(player, disc){
     if (!this.justThrown){
-        disc.kill();
-        // this.body.velocity.x = 0;
-        // this.body.velocity.y = 0;
-        //TODO activate correct animation state
-        this.canMove = false;
-        this.hasDisc = true;
-        // keep track of when the disc was caught
-        this.catchTime = game.time.time;
+        //TODO Consider putting these all into a function in the disc class
+        var theDisc = game.state.states[game.state.current].disc;
+        if (disc.catchable){
+            theDisc.isBeingLobbed = false;
+            theDisc.pickUp();
+            theDisc.kill();
+
+
+            // this.body.velocity.x = 0;
+            // this.body.velocity.y = 0;
+            //TODO activate correct animation state
+            this.canMove = false;
+            this.hasDisc = true;
+            // make sure the x scale makes the player face the right direction
+            switch (this.teamIdentifier){
+                case 1:
+                    this.scale.x = 1;
+                break;
+                case 2:
+                    this.scale.x = -1;
+                break;
+            }
+            // TODO check if the player was facing the right or wrong way
+
+            // keep track of when the disc was caught
+            this.catchTime = game.time.time;
+        }
 
     }
 }
@@ -231,8 +292,8 @@ Player.prototype.reviveDisc = function(){
     this.hasDisc = false;
     var theDisc = game.state.states[game.state.current].disc;
     theDisc.revive();
-    theDisc.position.x = this.position.x;
-    theDisc.position.y = this.position.y;
+    theDisc.position.x = this.position.x + (this.scale.x * 50 ); // these MAGIC NUMBERS need to be set for each individual player
+    theDisc.position.y = this.position.y - 10; // these MAGIC NUMBERS need to be set for each individual player
     return theDisc;
 }
 
@@ -253,8 +314,10 @@ Player.prototype.calculateHoldBonus = function(){
 
 Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
     var theDisc = this.reviveDisc();
+    theDisc.animations.play('spin', 15, true);
     var holdBonus = this.calculateHoldBonus();
     console.log ("lobbing")
+    theDisc.isBeingLobbed = true;
     // choose a 'landing spot' for the lob
     var destY;
     console.log("height is " + game.world.height)
@@ -288,8 +351,8 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
     //this.reticle.animations.currentAnim.onComplete.add(function () {  this.reticle.kill();}, this);
 
     // determine direction to the reticle
-     distanceVec = new Phaser.Point(this.x - destX, this.y - destY);
-     normalizedVec = distanceVec.normalize();
+    distanceVec = new Phaser.Point(this.x - destX, this.y - destY);
+    normalizedVec = distanceVec.normalize();
 
     theDisc.body.velocity.y = distanceVec.y * -300;
     theDisc.body.velocity.x = distanceVec.x * -300;
@@ -305,25 +368,52 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
 }
 
 Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
-    var theDisc = this.reviveDisc();
+    this.hasDisc = false;
+    game.time.events.add(Phaser.Timer.SECOND*.25, function(){
+        var theDisc = this.reviveDisc();
+        theDisc.animations.play('spin', 15, true);
+        var holdBonus = this.calculateHoldBonus();
+       
+        // get direction from keys pressed
+        var yVel;
+        if (movingUp){
+            yVel = -1 * this.POWER;
+        } else if (movingDown){
+            yVel = 1 * this.POWER;
+        } else {
+            yVel = 0;
+        }
 
-    var holdBonus = this.calculateHoldBonus();
-   
-    // get direction from keys pressed
-    var yVel;
-    if (movingUp){
-        yVel = -1 * this.POWER;
-    } else if (movingDown){
-        yVel = 1 * this.POWER;
-    } else {
-        yVel = 0;
-    }
+        theDisc.body.velocity.y = yVel * holdBonus * diagonalFactor;
+        theDisc.body.velocity.x = this.throwDirection * holdBonus * this.POWER * diagonalFactor;
+        this.justThrown = true;
+        game.time.events.add(Phaser.Timer.SECOND*.5, function(){this.justThrown = false}, this);
 
-    theDisc.body.velocity.y = yVel * holdBonus * diagonalFactor;
-    theDisc.body.velocity.x = this.throwDirection * holdBonus * this.POWER * diagonalFactor;
-    this.justThrown = true;
-    game.time.events.add(Phaser.Timer.SECOND*.5, function(){this.justThrown = false}, this);
+        // make sure the scale of the throw animation is always facing the right way
+        switch (this.teamIdentifier){
+            case 1:
+                this.scale.x = 1;
+            break;
+            case 2:
+                this.scale.x = -1;
+            break;
+        }
+    }, this);
 
 
+    this.loadTexture('guber-throwing', 0, false);
+    this.animations.play('throw', 20, false);
+
+  
 
 }
+
+
+// Animation helpers -- consider moving these
+Player.prototype.finishThrow = function(){
+   this.loadTexture('guber-standing', 0, false);
+   this.animations.play('walk', 5, true);
+}
+
+
+
