@@ -124,7 +124,7 @@ Game.prototype = {
 
     createArena: function(whichArena){
 
-     
+        this.pirateBG = this.game.add.sprite(0,0,'pirate-ship-bg');
 
         // Create a group to hold the walls
         this.walls = game.add.group();
@@ -132,33 +132,37 @@ Game.prototype = {
         // Create the arena features based on which arena was chosen on the previous menu.
         switch (whichArena){
             case 1:
+
+
                 // Draw four walls.
                 var wallWidth = 5;
-                this.wallOne = new Wall(game,this.world.width/2,81, 0);
-                this.wallOne.width = this.world.width;
-                this.wallOne.height = wallWidth;
+                this.wallTop = new Wall(game,this.world.width/2,75, 0);
+                this.wallTop.width = this.world.width;
+                this.wallTop.height = wallWidth;
 
-                this.wallTwo = new Wall(game,this.world.width/2,this.world.height-81, 0);
-                this.wallTwo.width = this.world.width;
-                this.wallTwo.height = wallWidth;
+                this.wallBottom = new Wall(game,this.world.width/2,this.world.height-55, 0);
+                this.wallBottom.width = this.world.width;
+                this.wallBottom.height = wallWidth;
 
-                this.wallThree = new Wall(game,this.world.width-89,this.world.height/2, 5, 2);
-                this.wallThree.width = wallWidth;
-                this.wallThree.height = this.world.height - wallWidth*2;
+                this.wallRight = new Wall(game,this.world.width-65,this.world.height/2, 5, 2);
+                this.wallRight.width = wallWidth;
+                this.wallRight.height = this.world.height - wallWidth*2;
 
-                this.wallFour = new Wall(game,89,this.world.height/2, 5, 1);
-                this.wallFour.width = wallWidth;
-                this.wallFour.height = this.world.height - wallWidth*2;
+                this.wallLeft = new Wall(game,65,this.world.height/2, 5, 1);
+                this.wallLeft.width = wallWidth;
+                this.wallLeft.height = this.world.height - wallWidth*2;
 
-                this.walls.add(this.wallOne);
-                this.walls.add(this.wallTwo);
-                this.walls.add(this.wallThree);
-                this.walls.add(this.wallFour);
+                this.walls.add(this.wallTop);
+                this.walls.add(this.wallBottom);
+                this.walls.add(this.wallRight);
+                this.walls.add(this.wallLeft);
 
                 this.net = new Net(game,this.world.width/2,wallWidth)
                 this.net.width = 5;
                 this.net.height = this.world.height - wallWidth*2;
                 this.game.add.existing(this.net);
+
+
 
             break;
         }      

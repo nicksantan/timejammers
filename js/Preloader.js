@@ -21,7 +21,9 @@ Preloader.prototype = {
 		this.load.image('wall', 'assets/wall.jpg');
 		this.load.image('player', 'assets/player.png');
 		this.load.image('guber', 'assets/guber.png');
+		this.load.image('pirate-ship-bg', 'assets/pirate-ship-beta.png');
 		this.load.image('set-count-bg', 'assets/set-count-flat.png');
+		this.load.image('score-bg', 'assets/score-bg.png');
 		this.load.spritesheet('baddie', 'assets/baddie.png', 32, 32);
 		this.load.spritesheet('dude', 'assets/dude.png', 32, 48);	
 		this.load.spritesheet('disc-normal', 'assets/disc-normal.png', 28, 28);	

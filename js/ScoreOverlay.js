@@ -2,11 +2,13 @@
 var ScoreOverlay = function (game) {
 
    Phaser.Group.call(this, game);	
+
+   this.scoreOverlayBG = this.create(game.world.width/2,game.world.height/2-30,'score-bg');
    this.setOverlayBG = this.create(game.world.width/2,276,'set-count-bg');
    this.setOverlayBG.anchor.setTo(0.5,0.5)
 
-   this.teamOneScore = this.create(game.world.width/3, 276, 'number-atlas');
-   this.teamTwoScore = this.create(game.world.width*2/3, 276, 'number-atlas');
+   this.teamOneScore = this.create(game.world.width*.40, 185, 'number-atlas');
+   this.teamTwoScore = this.create(game.world.width*.60, 185, 'number-atlas');
 
    this.teamOneSets = this.create(game.world.width*.45, 280, 'number-atlas');
    this.teamTwoSets = this.create(game.world.width*.55, 280, 'number-atlas');
