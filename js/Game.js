@@ -73,7 +73,15 @@ Game.prototype = {
 
         this.scoreOverlay = new ScoreOverlay(game);
 
-        this.scoreOverlay.showOverlay();
+        //this.scoreOverlay.showOverlay();
+
+        // Create UI elements such as player portraits
+        // TODO this should be based on data from the previous screen
+        this.playerOnePortrait = new PlayerPortrait(game, "guber", 1)
+       // this.playerOnePortrait.x = 0;
+        this.playerTwoPortrait = new PlayerPortrait(game, "guber", 4)
+       // this.playerTwoPortrait.x = 580;
+
     },
 
     update: function () {
@@ -166,6 +174,9 @@ Game.prototype = {
 
             break;
         }      
+
+        this.walls.visible = false;
+        this.net.visible = false;
     },
     scoreGoal: function(scoreValue, whichTeamGotScoredOn){
         console.log(scoreValue + " points were scored against team " + whichTeamGotScoredOn);
