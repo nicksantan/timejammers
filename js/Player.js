@@ -12,10 +12,11 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
 
     switch (this.teamIdentifier){
         case 1:
-            this.throwDirection = 1;
+        this.throwDirection = 1;
         break;
         case 2:
-            this.throwDirection = -1;
+        this.throwDirection = -1;
+        this.scale.x = -1;
         break;
     }
 
@@ -46,12 +47,17 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     this.returningToStartPosition = false;
     this.atStartPosition = false;
     this.returnToStartRate = 3;
-
+    this.chargeTimerThreshold = 30;
+    this.chargeTimer = 0;
+    this.specialMoveCharged = false;
+    this.specialMovePending = false;
+    this.specialEligible = false;
     // create a reticle to use later
-    this.reticle = game.add.sprite(0, 0, 'reticle');
+    this.reticle = new Reticle(game,this.game.width/2,this.game.height/2)
+
     this.reticle.anchor.setTo(0.5,0.5)
     this.reticle.animations.add('fire');
-
+    this.game.add.existing(this.reticle);
     this.reticle.kill();
 
 };
@@ -65,15 +71,17 @@ Player.prototype.constructor = Player;
 
 
 Player.prototype.update = function() { 
-    
+
     if (!this.returningToStartPosition){
-       
-            game.physics.arcade.overlap(this, game.state.states[game.state.current].disc, this.catchDisc, null, this)
+
+        game.physics.arcade.overlap(this, game.state.states[game.state.current].disc, this.catchDisc, null, this)
+       // game.physics.arcade.overlap(this, game.state.states[game.state.current].reticles, function(){this.specialEligible = true;} null, this)
           //  console.log("Checking for collision with disc")
-        
-        this.checkInput();
-        this.endDash();
-    } else {
+
+          this.checkInput();
+          this.checkForSpecialCharge();
+          this.endDash();
+      } else {
         this.returnToStartPosition();
     }
 
@@ -81,7 +89,12 @@ Player.prototype.update = function() {
     if (game.state.states[game.state.current].disc.catchable){
         this.reticle.kill();
     }
-   
+
+    // Just for testing
+    if (this.specialMovePending){
+        this.tint = 0xff0000;
+    }
+
 };
 
 // ----------------------------------------------------
@@ -93,20 +106,20 @@ Player.prototype.assignControls = function(whichPlayer){
     // Assign the appropriate keys to this player;
     switch (whichPlayer){
         case 1:
-            this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
-            this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
-            this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
-            this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
-            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.Q)   
-            this.secondaryKey =game.input.keyboard.addKey(Phaser.Keyboard.E);     
+        this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
+        this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
+        this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
+        this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
+        this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.Q)   
+        this.secondaryKey =game.input.keyboard.addKey(Phaser.Keyboard.E);     
         break;
         case 2:
-            this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
-            this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.L);
-            this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.I);
-            this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.K);        
-            this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.U); 
-            this.secondaryKey =game.input.keyboard.addKey(Phaser.Keyboard.O);            
+        this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
+        this.rightKey = game.input.keyboard.addKey(Phaser.Keyboard.L);
+        this.upKey = game.input.keyboard.addKey(Phaser.Keyboard.I);
+        this.downKey = game.input.keyboard.addKey(Phaser.Keyboard.K);        
+        this.primaryKey = game.input.keyboard.addKey(Phaser.Keyboard.U); 
+        this.secondaryKey =game.input.keyboard.addKey(Phaser.Keyboard.O);            
         break;
         case 3:
         break;
@@ -116,12 +129,16 @@ Player.prototype.assignControls = function(whichPlayer){
 }
 
 Player.prototype.move = function(dimension, direction, diagonalFactor){
+    //reset all special moves/charging if applicable
+    this.chargeTimer = 0;
+    this.specialMoveCharged = false;
+    this.specialEligible = false;
     switch (dimension){
         case "x":
-            this.body.velocity.x = direction * this.SPEED * diagonalFactor;
+        this.body.velocity.x = direction * this.SPEED * diagonalFactor;
         break;
         case "y":
-            this.body.velocity.y = direction * this.SPEED * diagonalFactor;
+        this.body.velocity.y = direction * this.SPEED * diagonalFactor;
         break;
     }
 }
@@ -132,10 +149,10 @@ Player.prototype.returnToStartPosition = function(){
 
     switch (this.teamIdentifier){
         case 1:
-            startX = game.world.width/4;
+        startX = game.world.width/4;
         break;
         case 2:
-            startX = 3*(game.world.width/4);
+        startX = 3*(game.world.width/4);
         break;
     }
 
@@ -175,74 +192,102 @@ Player.prototype.checkInput = function(){
         movingUp = true;
     }
     else if (this.downKey.isDown){
-       movingDown = true;
-    } 
+     movingDown = true;
+ } 
 
-    if ((movingLeft || movingRight) && (movingUp || movingDown)){
-        diagonalFactor = .75;
+ if ((movingLeft || movingRight) && (movingUp || movingDown)){
+    diagonalFactor = .75;
+} else {
+    diagonalFactor = 1;
+}
+
+if (this.canMove){
+    if (movingLeft){
+        this.move("x", -1, diagonalFactor)
+        this.scale.x = -1;
+    } else if (movingRight){
+        this.move("x", 1, diagonalFactor)
+        this.scale.x = 1;
     } else {
-        diagonalFactor = 1;
+        this.body.velocity.x = 0;
     }
-    
-    if (this.canMove){
-        if (movingLeft){
-            this.move("x", -1, diagonalFactor)
-            this.scale.x = -1;
-        } else if (movingRight){
-            this.move("x", 1, diagonalFactor)
-            this.scale.x = 1;
-        } else {
-            this.body.velocity.x = 0;
-        }
 
+    if (movingUp){
+        this.move("y", -1, diagonalFactor)
+    } else if (movingDown){
+        this.move("y", 1, diagonalFactor)
+    } else {
+        this.body.velocity.y = 0;
+    }
+} else {
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+}
+
+if (this.hasDisc && !this.isDashing){
+    if (this.primaryKey.isDown && !this.primaryKeyPreviouslyHeld){
+        this.throwDisc(movingUp, movingDown, diagonalFactor);
+        this.primaryKeyPreviouslyHeld = true;
+    } else if (this.secondaryKey.isDown && !this.secondaryKeyPreviouslyHeld){
+        this.lobDisc(movingUp, movingDown, diagonalFactor);
+        this.secondaryKeyPreviouslyHeld = true;
+    }
+
+} 
+
+if (!this.hasDisc && !this.isDashing && this.canMove && !this.justThrown){
+    if (this.primaryKey.isDown && !this.primaryKeyPreviouslyHeld){
+        this.isDashing = true;
+        this.canMove = false;
         if (movingUp){
-            this.move("y", -1, diagonalFactor)
+            this.body.velocity.y = -700 * diagonalFactor;
         } else if (movingDown){
-            this.move("y", 1, diagonalFactor)
-        } else {
-            this.body.velocity.y = 0;
-        }
-    }
-
-    if (this.hasDisc && !this.isDashing){
-        if (this.primaryKey.isDown && !this.primaryKeyPreviouslyHeld){
-            this.throwDisc(movingUp, movingDown, diagonalFactor);
-            this.primaryKeyPreviouslyHeld = true;
-        } else if (this.secondaryKey.isDown && !this.secondaryKeyPreviouslyHeld){
-            this.lobDisc(movingUp, movingDown, diagonalFactor);
-            this.secondaryKeyPreviouslyHeld = true;
+            this.body.velocity.y = 700 * diagonalFactor;
         }
 
-    } 
-
-    if (!this.hasDisc && !this.isDashing && this.canMove && !this.justThrown){
-        if (this.primaryKey.isDown && !this.primaryKeyPreviouslyHeld){
-            this.isDashing = true;
-            this.canMove = false;
-            if (movingUp){
-                this.body.velocity.y = -700 * diagonalFactor;
-            } else if (movingDown){
-                this.body.velocity.y = 700 * diagonalFactor;
-            }
-
-            if (movingLeft){
-                this.body.velocity.x= -700 * diagonalFactor;
-            } else if (movingRight){
-                this.body.velocity.x = 700 * diagonalFactor;
-            }
-
-            this.primaryKeyPreviouslyHeld = true;
+        if (movingLeft){
+            this.body.velocity.x= -700 * diagonalFactor;
+        } else if (movingRight){
+            this.body.velocity.x = 700 * diagonalFactor;
         }
 
+        this.primaryKeyPreviouslyHeld = true;
     }
 
-    if (this.primaryKey.isUp && this.primaryKeyPreviouslyHeld){
-        this.primaryKeyPreviouslyHeld = false;
+}
+
+if (this.primaryKey.isUp && this.primaryKeyPreviouslyHeld){
+    this.primaryKeyPreviouslyHeld = false;
+}
+
+if (this.secondaryKey.isUp && this.secondaryKeyPreviouslyHeld){
+    this.secondaryKeyPreviouslyHeld = false;
+}
+}
+
+Player.prototype.checkForSpecialCharge = function(){
+    var theDisc = game.state.states[game.state.current].disc;
+      console.log(this.chargeTimer)
+    if (theDisc.isBeingLobbed && this.specialEligible){
+
+        this.tint = 0xff00ff;
+        this.chargeTimer += 1;
+
+    } else {
+        this.tint = 0xffffff;
+        this.chargeTimer = 0;
     }
 
-     if (this.secondaryKey.isUp && this.secondaryKeyPreviouslyHeld){
-        this.secondaryKeyPreviouslyHeld = false;
+    if (this.chargeTimer >= this.chargeTimerThreshold){
+        this.specialMoveCharged = true;
+    } else {
+        this.specialMoveCharged = false;
     }
+
+    if (this.specialMoveCharged){
+         this.tint = 0x000000;
+    }
+
 }
 
 Player.prototype.catchDisc = function(player, disc){
@@ -263,16 +308,20 @@ Player.prototype.catchDisc = function(player, disc){
             // make sure the x scale makes the player face the right direction
             switch (this.teamIdentifier){
                 case 1:
-                    this.scale.x = 1;
+                this.scale.x = 1;
                 break;
                 case 2:
-                    this.scale.x = -1;
+                this.scale.x = -1;
                 break;
             }
             // TODO check if the player was facing the right or wrong way
 
             // keep track of when the disc was caught
             this.catchTime = game.time.time;
+
+            if (this.specialMoveCharged){
+                this.specialMovePending = true;
+            }
         }
 
     }
@@ -321,11 +370,12 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
     // choose a 'landing spot' for the lob
     var destY;
     console.log("height is " + game.world.height)
-    if (movingUp) {
-        //TODO: Get bounds of the level here. Right now, use the hardcoded values y = 81 to y = game.world.height - 81
-        destY = 81 + Math.random()*((1/3) * game.world.height-162);
+    var playfieldHeight = game.world.height-130;
+    if (movingUp){
+        //TODO: Get bounds of the level here. Right now, use the hardcoded values
+        destY = 80 + Math.random()*((1/3) * playfieldHeight);
     } else if (movingDown){
-        destY = 81 + ((2/3) * game.world.height-162) + Math.random()*((1/3) * game.world.height-162);
+        destY = 80 + ((2/3) * playfieldHeight) + Math.random()*((1/3) * playfieldHeight);
     } else {
         destY = game.world.height/2 + Math.random()*100 - 50;
 
@@ -335,10 +385,10 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
     var destX;
     switch(this.throwDirection){
         case 1:
-            destX = (game.world.width-200) + (holdBonus * 20)
+        destX = (game.world.width-200) + (holdBonus * 20)
         break;
         case -1:
-            destX = 200 - (holdBonus*20);
+        destX = 200 - (holdBonus*20);
         break;
     }
 
@@ -364,6 +414,8 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
 
     theDisc.distanceToReticle = new Phaser.Point(this.x - destX, this.y - destY).getMagnitude();
 
+    //turn off special, if applicable
+    this.specialMovePending = false;
 
 }
 
@@ -373,7 +425,7 @@ Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
         var theDisc = this.reviveDisc();
         theDisc.animations.play('spin', 15, true);
         var holdBonus = this.calculateHoldBonus();
-       
+
         // get direction from keys pressed
         var yVel;
         if (movingUp){
@@ -392,27 +444,28 @@ Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
         // make sure the scale of the throw animation is always facing the right way
         switch (this.teamIdentifier){
             case 1:
-                this.scale.x = 1;
+            this.scale.x = 1;
             break;
             case 2:
-                this.scale.x = -1;
+            this.scale.x = -1;
             break;
         }
     }, this);
 
 
-    this.loadTexture('guber-throwing', 0, false);
-    this.animations.play('throw', 20, false);
+this.loadTexture('guber-throwing', 0, false);
+this.animations.play('throw', 20, false);
 
-  
+//turn off special, if applicable
+this.specialMovePending = false;
 
 }
 
 
 // Animation helpers -- consider moving these
 Player.prototype.finishThrow = function(){
-   this.loadTexture('guber-standing', 0, false);
-   this.animations.play('walk', 5, true);
+ this.loadTexture('guber-standing', 0, false);
+ this.animations.play('walk', 5, true);
 }
 
 

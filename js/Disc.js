@@ -48,7 +48,7 @@ Disc.prototype.update = function() {
 		
 
 		var currentDistanceToReticle = new Phaser.Point(this.x - this.nextX, this.y - this.nextY);
-		console.log(currentDistanceToReticle.getMagnitude() +" + " + this.distanceToReticle/2)
+	//	console.log(currentDistanceToReticle.getMagnitude() +" + " + this.distanceToReticle/2)
 		if (currentDistanceToReticle.getMagnitude() <= this.distanceToReticle/2){
 			this.scale.x -= .06;
 			this.scale.y -= .06;
@@ -138,7 +138,9 @@ Disc.prototype.resetDisc = function(whichSide){
 	this.revive();
 	
 	this.missed = false;
-	game.time.events.add(Phaser.Timer.SECOND * 2, function(){this.serve(whichSide)}, this);
+	if (!game.state.states[game.state.current].gameIsOver){
+		game.time.events.add(Phaser.Timer.SECOND * 2, function(){this.serve(whichSide)}, this);
+	}
 };
 
 Disc.prototype.pickUp = function(){

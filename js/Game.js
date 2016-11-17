@@ -42,10 +42,14 @@ Game.prototype = {
         // Create the arena depending on the chosen arena type
         this.createArena(game.arenaType);
 
+
+        // Create some variables to manage the state of the game
+        this.gameIsOver = false;
+
         // Create the applicable number of players based on choices made at the main menu.
         // For now, just create a test player.
-        this.testPlayer = new Player(game,200,200,1, 1);
-        this.testPlayerTwo = new Player(game,500,200,2,2);
+        this.testPlayer = new Player(game,this.game.width*1/4,200,1, 1);
+        this.testPlayerTwo = new Player(game,this.game.width*3/4,200,2,2);
         
 
 
@@ -55,10 +59,11 @@ Game.prototype = {
 
         // for now, create a disc
 
-        this.disc = new Disc(game,300,100)
+        this.disc = new Disc(game,this.game.width/2,this.game.height/2)
         this.game.add.existing(this.disc);
-        this.disc.body.velocity.x = 50;
-        this.disc.body.velocity.y = 50;
+        this.disc.body.velocity.x = 0;
+        this.disc.body.velocity.y = 0;
+        game.time.events.add(Phaser.Timer.SECOND * 2, function(){this.disc.serve(1)}, this);
 
         game.stage.smoothed = false;
 
@@ -175,7 +180,7 @@ Game.prototype = {
             break;
         }      
 
-        this.walls.visible = false;
+        this.walls.visible = true;
         this.net.visible = false;
     },
     scoreGoal: function(scoreValue, whichTeamGotScoredOn){
@@ -210,6 +215,12 @@ Game.prototype = {
             this.scoreOverlay.updateSet(2,this.teamTwoSet);
             game.time.events.add(Phaser.Timer.SECOND * 2, this.resetScoreOverlay, this);
            
+        }
+
+        if (this.teamTwoSet >= 3 || this.teamOneSet >= 3){
+            //present win graphics.
+            this.gameIsOver = true;
+            game.time.events.add(Phaser.Timer.SECOND * 5, this.quitGame, this);
         }
     },
 
