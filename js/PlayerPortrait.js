@@ -5,18 +5,18 @@ var PlayerPortrait = function (game, whichCharacter, whichSlot) {
 
    //TODO enter switchers here based on which player is chosen. For now, just use Trey Guber.
   
- //   	this.nameBg = this.create(game.world.width*.155,40, 'guber-name-bg');
- //   	this.portrait = this.create(game.world.width*.063,32, 'guber-portrait-v2');
-	// this.nameText = this.create(game.world.width*.145,35, 'guber-name');
+ //   	this.nameBg = this.create(game.width*.155,40, 'guber-name-bg');
+ //   	this.portrait = this.create(game.width*.063,32, 'guber-portrait-v2');
+	// this.nameText = this.create(game.width*.145,35, 'guber-name');
 
 
 
 
    	 	switch (whichSlot){
    		case 1:
-   			this.nameBg = this.create(game.world.width*.155,40, 'guber-name-bg');
-   			this.portrait = this.create(game.world.width*.063,32, 'guber-portrait-v2');
-			this.nameText = this.create(game.world.width*.145,35, 'guber-name');
+   			this.nameBg = this.create(119,40, 'guber-name-bg');
+   			this.portrait = this.create(48,32, 'guber-portrait-v2');
+			this.nameText = this.create(111,35, 'guber-name');
 			this.portrait.scale.x = 1;
    			this.x = 0;
    		break;
@@ -25,12 +25,12 @@ var PlayerPortrait = function (game, whichCharacter, whichSlot) {
    		case 3:
    		break;
    		case 4:
-			this.nameBg = this.create(game.world.width*.055,40, 'guber-name-bg');
-		   	this.portrait = this.create(game.world.width*.155,32, 'guber-portrait-v2');
-			this.nameText = this.create(game.world.width*.08,35, 'guber-name');
+			this.nameBg = this.create(game.width-119,40, 'guber-name-bg');
+		   	this.portrait = this.create(game.width-48,32, 'guber-portrait-v2');
+			this.nameText = this.create(game.width-111,35, 'guber-name');
    			this.portrait.scale.x = -1;
    			this.nameBg.scale.x = -1;
-   			this.x = 580;
+   			this.x = 0;
 
    		break;
    	}
@@ -38,6 +38,7 @@ var PlayerPortrait = function (game, whichCharacter, whichSlot) {
 
    	this.setAll('anchor.x', 0.5);
    	this.setAll('anchor.y', 0.5);
+   	this.fixedToCamera = true;
 
    	this.visible = true;
 };

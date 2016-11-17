@@ -294,6 +294,7 @@ Player.prototype.catchDisc = function(player, disc){
     if (!this.justThrown){
         //TODO Consider putting these all into a function in the disc class
         var theDisc = game.state.states[game.state.current].disc;
+        theDisc.specialActive = false;
         if (disc.catchable){
             theDisc.isBeingLobbed = false;
             theDisc.pickUp();
@@ -414,30 +415,50 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
 
     theDisc.distanceToReticle = new Phaser.Point(this.x - destX, this.y - destY).getMagnitude();
 
-    //turn off special, if applicable
-    this.specialMovePending = false;
+   
 
 }
 
 Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
     this.hasDisc = false;
+
+
     game.time.events.add(Phaser.Timer.SECOND*.25, function(){
         var theDisc = this.reviveDisc();
+        console.log("Is special pending?")
+        console.log(this.specialMovePending)
+        if (this.specialMovePending){
+            theDisc.specialActive = true;
+        }
         theDisc.animations.play('spin', 15, true);
-        var holdBonus = this.calculateHoldBonus();
+            var holdBonus = this.calculateHoldBonus();
 
-        // get direction from keys pressed
-        var yVel;
-        if (movingUp){
-            yVel = -1 * this.POWER;
-        } else if (movingDown){
-            yVel = 1 * this.POWER;
+        if (!theDisc.specialActive){
+            // get direction from keys pressed
+            var yVel;
+            if (movingUp){
+                yVel = -1 * this.POWER;
+            } else if (movingDown){
+                yVel = 1 * this.POWER;
+            } else {
+                yVel = 0;
+            }
+            
+            theDisc.body.velocity.y = yVel * holdBonus * diagonalFactor;
+            theDisc.body.velocity.x = this.throwDirection * holdBonus * this.POWER * diagonalFactor;
+        
         } else {
-            yVel = 0;
+            if (movingUp){
+                yVel = -1 * this.POWER * 2;
+            } else {
+                yVel = 1 * this.POWER * 2;
+            } 
+
+            theDisc.body.velocity.y = yVel * holdBonus;
+            theDisc.body.velocity.x = this.throwDirection * holdBonus * this.POWER * 1.5;
         }
 
-        theDisc.body.velocity.y = yVel * holdBonus * diagonalFactor;
-        theDisc.body.velocity.x = this.throwDirection * holdBonus * this.POWER * diagonalFactor;
+        
         this.justThrown = true;
         game.time.events.add(Phaser.Timer.SECOND*.5, function(){this.justThrown = false}, this);
 
@@ -450,14 +471,14 @@ Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
             this.scale.x = -1;
             break;
         }
+
+        this.specialMovePending = false;
     }, this);
 
 
 this.loadTexture('guber-throwing', 0, false);
 this.animations.play('throw', 20, false);
 
-//turn off special, if applicable
-this.specialMovePending = false;
 
 }
 

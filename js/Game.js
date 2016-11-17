@@ -32,15 +32,19 @@ Game.prototype = {
 
     create: function () {
 
+        this.cameraCounter = 0;
         // Set window scale mode
         this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         this.game.scale.windowConstraints.bottom = "visual";
-       
+       // was
+        //game.world.resize(768, 600); 844 475
+        game.world.setBounds(-38, -21, 844, 475)
         // Initialize physics engine
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
         // Create the arena depending on the chosen arena type
-        this.createArena(game.arenaType);
+        this.createBackgroundElements(game.arenaType);
+      
 
 
         // Create some variables to manage the state of the game
@@ -50,12 +54,12 @@ Game.prototype = {
         // For now, just create a test player.
         this.testPlayer = new Player(game,this.game.width*1/4,200,1, 1);
         this.testPlayerTwo = new Player(game,this.game.width*3/4,200,2,2);
-        
-
 
         this.players = game.add.group();
         this.players.add(this.testPlayer);
         this.players.add(this.testPlayerTwo);
+
+
 
         // for now, create a disc
 
@@ -65,6 +69,12 @@ Game.prototype = {
         this.disc.body.velocity.y = 0;
         game.time.events.add(Phaser.Timer.SECOND * 2, function(){this.disc.serve(1)}, this);
 
+        this.createForegroundElements(game.arenaType);
+
+        // Create a group to hold the walls
+        this.walls = game.add.group();
+        this.createArena(game.arenaType);
+        
         game.stage.smoothed = false;
 
         this.checkingForServe = true;
@@ -91,7 +101,8 @@ Game.prototype = {
 
     update: function () {
        
-
+         this.camera.y = Math.sin(game.time.now / 1000) * 10;
+         console.log(Math.sin(game.time.now / 1000) * 10)
         // Manage collisions
         
         // Player vs. boundary collisions
@@ -135,12 +146,25 @@ Game.prototype = {
        return true;
     },
 
+    createBackgroundElements: function(whichArena){
+        this.pirateBG = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-BASE');
+        this.pirateBG.anchor.setTo(0.5,0.5);
+    },
+
+    createForegroundElements: function(whichArena){
+        this.pirateDecks = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-LR-DECKS');
+        this.pirateFront = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-FRONT');
+        this.pirateMast = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-MAST');
+        this.pirateDecks.anchor.setTo(0.5,0.5);
+        this.pirateFront.anchor.setTo(0.5,0.5);
+        this.pirateMast.anchor.setTo(0.5,0.5);
+    },
+
     createArena: function(whichArena){
 
-        this.pirateBG = this.game.add.sprite(0,0,'pirate-ship-bg');
+      
 
-        // Create a group to hold the walls
-        this.walls = game.add.group();
+      
 
         // Create the arena features based on which arena was chosen on the previous menu.
         switch (whichArena){
@@ -149,30 +173,50 @@ Game.prototype = {
 
                 // Draw four walls.
                 var wallWidth = 5;
-                this.wallTop = new Wall(game,this.world.width/2,75, 0);
-                this.wallTop.width = this.world.width;
+                this.wallTop = new Wall(game,this.game.width/2,75, 0);
+                this.wallTop.width = this.game.width;
                 this.wallTop.height = wallWidth;
 
-                this.wallBottom = new Wall(game,this.world.width/2,this.world.height-55, 0);
-                this.wallBottom.width = this.world.width;
+                this.wallBottom = new Wall(game,this.game.width/2,this.game.height-55, 0);
+                this.wallBottom.width = this.game.width;
                 this.wallBottom.height = wallWidth;
 
-                this.wallRight = new Wall(game,this.world.width-65,this.world.height/2, 5, 2);
+                this.wallRight = new Wall(game,this.game.width-65,125, 5, 2);
                 this.wallRight.width = wallWidth;
-                this.wallRight.height = this.world.height - wallWidth*2;
+                this.wallRight.height = 100;
 
-                this.wallLeft = new Wall(game,65,this.world.height/2, 5, 1);
+                this.wallRightTwo = new Wall(game,this.game.width-65,237, 3, 2);
+                this.wallRightTwo.width = wallWidth;
+                this.wallRightTwo.height = 125;
+
+                this.wallRightThree = new Wall(game,this.game.width-65,350, 5, 2);
+                this.wallRightThree.width = wallWidth;
+                this.wallRightThree.height = 100;
+
+                this.wallLeft = new Wall(game,65,125, 3, 1);
                 this.wallLeft.width = wallWidth;
-                this.wallLeft.height = this.world.height - wallWidth*2;
+                this.wallLeft.height = 100;
+
+                this.wallLeftTwo = new Wall(game,65,237, 5, 1);
+                this.wallLeftTwo.width = wallWidth;
+                this.wallLeftTwo.height = 125;
+
+                this.wallLeftThree = new Wall(game,65,350, 3, 1);
+                this.wallLeftThree.width = wallWidth;
+                this.wallLeftThree.height = 100;
 
                 this.walls.add(this.wallTop);
                 this.walls.add(this.wallBottom);
                 this.walls.add(this.wallRight);
+                this.walls.add(this.wallRightTwo);
+                this.walls.add(this.wallRightThree);
                 this.walls.add(this.wallLeft);
+                this.walls.add(this.wallLeftTwo);
+                this.walls.add(this.wallLeftThree);
 
-                this.net = new Net(game,this.world.width/2,wallWidth)
+                this.net = new Net(game,this.game.width/2,wallWidth)
                 this.net.width = 5;
-                this.net.height = this.world.height - wallWidth*2;
+                this.net.height = this.game.height - wallWidth*2;
                 this.game.add.existing(this.net);
 
 
@@ -180,7 +224,7 @@ Game.prototype = {
             break;
         }      
 
-        this.walls.visible = true;
+        this.walls.visible = false;
         this.net.visible = false;
     },
     scoreGoal: function(scoreValue, whichTeamGotScoredOn){

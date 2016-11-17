@@ -25,6 +25,12 @@ Preloader.prototype = {
 		this.load.image('set-count-bg', 'assets/set-count-flat.png');
 		this.load.image('score-bg', 'assets/score-bg.png');
 
+		// Level assets
+		this.load.image('jewel-of-rabat-BASE', 'assets/jewel-of-rabat-BASE.png');
+		this.load.image('jewel-of-rabat-FRONT', 'assets/jewel-of-rabat-FRONT.png');
+		this.load.image('jewel-of-rabat-LR-DECKS', 'assets/jewel-of-rabat-LR-DECKS.png');
+		this.load.image('jewel-of-rabat-MAST', 'assets/jewel-of-rabat-MAST.png');
+
 		// Load player portrait assets
 		this.load.image('guber-portrait-v2', 'assets/guber-portrait-v2.png');
 		this.load.image('guber-name', 'assets/guber-name.png');

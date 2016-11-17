@@ -18,7 +18,8 @@ var Disc = function (game, x, y) {
     this.nextX = 0;
     this.nextY = 0;
     this.distanceToReticle = 0;
-
+    this.specialActive = false;
+    this.justScored = false;
 
     this.spark = game.add.sprite(0, 0, 'spark');
     this.spark.anchor.setTo(0.5,0.5)
@@ -26,7 +27,14 @@ var Disc = function (game, x, y) {
 
     this.spark.kill();
     
-
+    // Create a pool for the disc trails
+    this.trailPool = [];
+    for (i = 0; i < 20; i++) {
+    var trail = new DiscTrail(game,0,0);
+    this.game.add.existing(trail);
+    trail.kill();
+    this.trailPool.push(trail);
+  }
 
 
 };
@@ -43,6 +51,10 @@ Disc.prototype.create = function(){
 };
 
 Disc.prototype.update = function() {
+	
+	if (this.alive && this.specialActive){
+		this.addTrail();
+	}
 
 	if (!this.catchable && !this.missed && !this.mayBeMissed && this.isBeingLobbed){
 		
@@ -93,6 +105,19 @@ Disc.prototype.update = function() {
 // Helper functions for Disc.js
 // ----------------------------------------------------
 
+Disc.prototype.addTrail = function (){
+	var trail;
+	for (i = 0; i < this.trailPool.length; i++) {
+      if (!this.trailPool[i].alive) {
+         trail = this.trailPool[i];
+         console.log("found a dead trail, reactivating at " +this.x + " and " + this.y)
+         trail.reset(this.x, this.y);
+         trail.alpha = 1.0;
+         return trail;
+      }
+    }
+}
+
 Disc.prototype.bounceOffWall = function(disc, wall){
 	
 
@@ -119,9 +144,11 @@ Disc.prototype.bounceOffWall = function(disc, wall){
 		this.spark.animations.play('fire', 15, false);
 		this.spark.animations.currentAnim.onComplete.add(function () {	this.spark.kill();}, this);
 	} else {
-		
-		game.state.states[game.state.current].scoreGoal(wall.scoreValue, wall.whichSide);
-		this.resetDisc(wall.whichSide);
+		if (!this.justScored){
+			game.state.states[game.state.current].scoreGoal(wall.scoreValue, wall.whichSide);
+			this.resetDisc(wall.whichSide);
+			this.justScored = true;
+		}
 	}
 
 	// console.log("heyyy")
@@ -166,6 +193,7 @@ Disc.prototype.scoreMiss = function(){
 Disc.prototype.serve = function(whichSide){
 	console.log("serve!")
 	this.catchable = true;
+	this.justScored = false;
 	switch(whichSide){
 		case 1:
 			this.body.velocity.x = -400;
