@@ -23,6 +23,7 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     // Enable physics on player
     game.physics.arcade.enable(this);
     this.body.drag.x = 2000;
+    this.body.drag.y = 2000;
     
     // Assign correct keymappings
     this.assignControls(this.playerIdentifier); 
@@ -95,11 +96,26 @@ Player.prototype.update = function() {
         this.tint = 0xff0000;
     }
 
+    this.clampPosition();
+
 };
 
 // ----------------------------------------------------
 // Helper functions for Player.js
 // ----------------------------------------------------
+
+Player.prototype.clampPosition = function(){
+
+    // TODO make these values dynamic
+    if (this.y > 335.5){
+        this.y = 335;
+    }
+
+    if (this.y < 120.5){
+        this.y = 121;
+    }
+
+}
 
 Player.prototype.assignControls = function(whichPlayer){
 
@@ -144,33 +160,36 @@ Player.prototype.move = function(dimension, direction, diagonalFactor){
 }
 
 Player.prototype.returnToStartPosition = function(){
-    var startY = game.world.height/2;
+    var theDisc = game.state.states[game.state.current].disc;
+    var startY = this.game.height/2;
     var startX;
-
+        this.body.velocity.x = 0;
+        this.body.velocity.y = 0;
     switch (this.teamIdentifier){
         case 1:
-        startX = game.world.width/4;
+        startX = this.game.width/4;
         break;
         case 2:
-        startX = 3*(game.world.width/4);
+        startX = 3*(this.game.width/4);
         break;
     }
 
     if (this.x < startX){
         this.position.x += this.returnToStartRate;
-    } else {
+    } else if (this.x > startX + this.returnToStartRate) {
         this.position.x -= this.returnToStartRate;
     }
 
     if (this.y < startY){
         this.position.y += this.returnToStartRate;
-    } else {
+    } else if (this.y > startY + this.returnToStartRate) {
         this.position.y -= this.returnToStartRate;
     }
 
-    if (Math.abs(this.position.x - startX) < this.returnToStartRate + 1 && Math.abs(this.position.y - startY) < this.returnToStartRate + 1){
+    if (Math.abs(this.position.x - startX) < this.returnToStartRate + 1 && Math.abs(this.position.y - startY) < this.returnToStartRate + 1 && !theDisc.pendingServe){
         //this.atStartPosition = true;
         this.returningToStartPosition = false;
+
     }
 }
 
@@ -219,7 +238,7 @@ if (this.canMove){
     } else {
         this.body.velocity.y = 0;
     }
-} else {
+} else if (!this.isDashing) {
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
 }
@@ -267,7 +286,7 @@ if (this.secondaryKey.isUp && this.secondaryKeyPreviouslyHeld){
 
 Player.prototype.checkForSpecialCharge = function(){
     var theDisc = game.state.states[game.state.current].disc;
-      console.log(this.chargeTimer)
+    //  console.log(this.chargeTimer)
     if (theDisc.isBeingLobbed && this.specialEligible){
 
         this.tint = 0xff00ff;
@@ -329,6 +348,7 @@ Player.prototype.catchDisc = function(player, disc){
 }
 
 Player.prototype.endDash = function(){
+    console.log(this.isDashing);
     if (this.isDashing && this.body.velocity.x == 0 & this.body.velocity.y == 0){
         this.isDashing = false;
         if (!this.hasDisc){
@@ -370,23 +390,23 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
     theDisc.isBeingLobbed = true;
     // choose a 'landing spot' for the lob
     var destY;
-    console.log("height is " + game.world.height)
-    var playfieldHeight = game.world.height-130;
+    console.log("height is " + this.game.height)
+    var playfieldHeight = this.game.height-130;
     if (movingUp){
         //TODO: Get bounds of the level here. Right now, use the hardcoded values
         destY = 80 + Math.random()*((1/3) * playfieldHeight);
     } else if (movingDown){
         destY = 80 + ((2/3) * playfieldHeight) + Math.random()*((1/3) * playfieldHeight);
     } else {
-        destY = game.world.height/2 + Math.random()*100 - 50;
+        destY = this.game.height/2 + Math.random()*100 - 50;
 
     }
 
-    //TODO: Get bounds of the level here. Right now use the hardcoded value of game.world.width-89 as the far net
+    //TODO: Get bounds of the level here. Right now use the hardcoded value of this.game.width-89 as the far net
     var destX;
     switch(this.throwDirection){
         case 1:
-        destX = (game.world.width-200) + (holdBonus * 20)
+        destX = (this.game.width-200) + (holdBonus * 20)
         break;
         case -1:
         destX = 200 - (holdBonus*20);

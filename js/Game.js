@@ -102,7 +102,7 @@ Game.prototype = {
     update: function () {
        
          this.camera.y = Math.sin(game.time.now / 1000) * 10;
-         console.log(Math.sin(game.time.now / 1000) * 10)
+         //console.log(Math.sin(game.time.now / 1000) * 10)
         // Manage collisions
         
         // Player vs. boundary collisions

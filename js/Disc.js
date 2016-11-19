@@ -20,6 +20,7 @@ var Disc = function (game, x, y) {
     this.distanceToReticle = 0;
     this.specialActive = false;
     this.justScored = false;
+    this.pendingServe = true;
 
     this.spark = game.add.sprite(0, 0, 'spark');
     this.spark.anchor.setTo(0.5,0.5)
@@ -163,7 +164,7 @@ Disc.prototype.resetDisc = function(whichSide){
 	this.y = this.game.height/2;
 	this.animations.play('spin', 15, true);
 	this.revive();
-	
+	this.pendingServe = true;
 	this.missed = false;
 	if (!game.state.states[game.state.current].gameIsOver){
 		game.time.events.add(Phaser.Timer.SECOND * 2, function(){this.serve(whichSide)}, this);
@@ -194,6 +195,7 @@ Disc.prototype.serve = function(whichSide){
 	console.log("serve!")
 	this.catchable = true;
 	this.justScored = false;
+	this.pendingServe = false;
 	switch(whichSide){
 		case 1:
 			this.body.velocity.x = -400;
