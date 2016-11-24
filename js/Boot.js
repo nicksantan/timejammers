@@ -9,7 +9,8 @@ Boot.prototype = {
     init: function () {
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         Phaser.Canvas.setImageRenderingCrisp(game.canvas);
-       game.renderer.renderSession.roundPixels = true;
+        game.renderer.renderSession.roundPixels = true;
+        game.world.setBounds(-38, -21, 844, 475)
 
     },
 

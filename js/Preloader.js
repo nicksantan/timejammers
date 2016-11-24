@@ -24,7 +24,7 @@ Preloader.prototype = {
 		this.load.image('pirate-ship-bg', 'assets/pirate-ship-beta.png');
 		this.load.image('set-count-bg', 'assets/set-count-flat.png');
 		this.load.image('score-bg', 'assets/score-bg.png');
-
+		this.load.image('demo-title', 'assets/demo-title.png');
 		// Level assets
 		this.load.image('jewel-of-rabat-BASE', 'assets/jewel-of-rabat-BASE.png');
 		this.load.image('jewel-of-rabat-FRONT', 'assets/jewel-of-rabat-FRONT.png');

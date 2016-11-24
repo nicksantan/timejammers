@@ -74,6 +74,15 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     this.reticle.kill();
 
     this.body.setSize(60, 60, 45, 45);
+
+     // Create a pool for the player trails
+    this.trailPool = [];
+    for (i = 0; i < 20; i++) {
+        var trail = new PlayerTrail(game,0,0);
+        this.game.add.existing(trail);
+        trail.kill();
+        this.trailPool.push(trail);
+    }
 };
 
 Player.prototype = Object.create(Phaser.Sprite.prototype);
@@ -142,6 +151,20 @@ Player.prototype.manageAnimations = function(){
                  this.animations.play('standing', 5, true);   
             }
         }
+    }
+}
+
+Player.prototype.addTrail = function (){
+    var trail;
+    for (i = 0; i < this.trailPool.length; i++) {
+      if (!this.trailPool[i].alive) {
+         trail = this.trailPool[i];
+         console.log("found a dead trail, reactivating at " +this.x + " and " + this.y)
+         trail.reset(this.x, this.y);
+         // set scale
+         trail.alpha = 1.0;
+         return trail;
+      }
     }
 }
 
@@ -437,6 +460,10 @@ Player.prototype.catchDisc = function(player, disc){
 
 Player.prototype.endDash = function(){
     //console.log(this.isDashing);
+    if (this.isDashing){
+        this.addTrail();
+    }
+
     if (this.isDashing && this.body.velocity.x == 0 & this.body.velocity.y == 0){
         this.isDashing = false;
         if (!this.hasDisc){

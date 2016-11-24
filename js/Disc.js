@@ -90,13 +90,17 @@ Disc.prototype.update = function() {
 				console.log("may be missed set to true")
 				this.body.velocity.x = 0;
 				this.body.velocity.y = 0;
+					console.log("scalex is shrinking " + this.scale.x)
 				this.animations.stop();
 				//check if this is caught in X seconds. If not, make it uncatchable and send a message to score a point for a player.
 				//TODO: FIX FIRST!
 				//game.time.events.add(Phaser.Timer.SECOND * this.GROUND_TIME_BEFORE_MISS, this.scoreMiss, this);
 			}
 		} else {
-			console.log(this.isPoppedUp);
+			
+			console.log("current distance to reticle magnitude is: " + currentDistanceToReticle.getMagnitude());
+			console.log("it needs to be less than the distance to reticle/2 which is " +this.distanceToReticle/2);
+			console.log("scalex is growing " + this.scale.x)
 			this.scale.x += growRate;
 			this.scale.y += growRate;
 		}
@@ -139,15 +143,15 @@ Disc.prototype.popUp = function(){
     var destY;
     var destX;
     if (this.y < this.game.height/2){ 
-    	destY = this.y + 10 + Math.random()*25;
+    	destY = this.y + 25 + Math.random()*25;
     } else {
-    	destY = this.y - 10 - Math.random()*25;
+    	destY = this.y - 25 - Math.random()*25;
     }
 
     if (this.x < this.game.width/2){ 
-    	destX = this.x + 10 + Math.random()*25;
+    	destX = this.x + 25 + Math.random()*25;
     } else {
-    	destX = this.x - 10 - Math.random()*25;
+    	destX = this.x - 25 - Math.random()*25;
     }
    
     // determine direction to the reticle
