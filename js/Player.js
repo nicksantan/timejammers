@@ -43,8 +43,12 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     this.standingAnimation = this.animations.add('standing', Phaser.Animation.generateFrameNames('standing-', 1, 8, '.png', 0), 15, false);
    
 
+    this.holdingAnimation = this.animations.add('holding', Phaser.Animation.generateFrameNames('holding-', 1, 8, '.png', 0), 15, false);
     //this.throwAnimation = this.sprite.animations.add('throw', Phaser.Animation.generateFrameNames('normal-throw', 1, 6), 15, false);
 
+    this.chargingAnimation = this.animations.add('charging', Phaser.Animation.generateFrameNames('charge-', 5, 6, '.png', 0), 15, false);
+    this.shakingAnimation = this.animations.add('shaking', Phaser.Animation.generateFrameNames('charge-', 5, 6, '.png', 0), 15, false);
+   // this.chargingAnimation.onComplete.add(function(){this.animations.play('shaking', 15, true)}, this);
     // Assign initial variable values
     this.canMove = true;
     this.hasDisc = false;
@@ -127,13 +131,20 @@ Player.prototype.manageAnimations = function(){
             this.animations.play('running-right-left', 15, true);
         }
     } else {
+        if (this.chargeTimer > 0 && !this.chargingAnimation.isPlaying && !this.hasDisc){
+            this.animations.play('charging', 15, true);
+        }
         // Don't override other animations
-        if (!this.standingAnimation.isPlaying && !this.throwAnimation.isPlaying){
-            // determine whether or not the player has the disc 
-            this.animations.play('standing', 5, true);   
+        if (!this.throwAnimation.isPlaying && this.chargeTimer == 0){
+            if (this.hasDisc && !this.holdingAnimation.isPlaying){
+                this.animations.play('holding', 5, true);
+            } else if (!this.hasDisc && !this.standingAnimation.isPlaying){
+                 this.animations.play('standing', 5, true);   
+            }
         }
     }
 }
+
 Player.prototype.clampPosition = function(){
 
     // TODO make these values dynamic
@@ -518,7 +529,7 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
 
 Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
     this.hasDisc = false;
-
+    this.specialEligible = false;
 
     game.time.events.add(Phaser.Timer.SECOND*.25, function(){
         var theDisc = this.reviveDisc();
