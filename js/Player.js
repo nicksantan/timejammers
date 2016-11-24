@@ -1,7 +1,8 @@
 // Player.js: a class for an individual player
 var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
 
-    Phaser.Sprite.call(this, game, x, y, 'guber-standing');
+    Phaser.Sprite.call(this, game, x, y, 'guber-atlas');
+
     this.anchor.setTo(0.5,0.5);
     this.smoothed = false;
     // used to designate this as player 1, 2, 3, or 4
@@ -32,16 +33,23 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     this.SPEED = 200;
     this.POWER = 200;
     this.HOLDTHRESHOLD = 1000;
-
-    this.animations.add('walk');
-    this.animations.play('walk', 5, true);
-    this.throwAnimation = this.animations.add('throw', [5,4,3,2,1,0], 15, false);
+    console.log(Phaser.Animation.generateFrameNames('standing', 1, 6, '.png', 0))
+    this.runningAnimation = this.animations.add('running-right-left', Phaser.Animation.generateFrameNames('running-right-left-', 1, 6, '.png', 0), 15, false);
+    // this.animations.play('running-right-left', 15, true);
+  //  this.throwAnimation = this.animations.add('throw', [5,4,3,2,1,0], 15, false);
+    this.throwAnimation = this.animations.add('normal-throw', Phaser.Animation.generateFrameNames('normal-throw-', 1, 6, '.png', 0), 15, false);
     this.throwAnimation.onComplete.add(this.finishThrow, this);
+
+    this.standingAnimation = this.animations.add('standing', Phaser.Animation.generateFrameNames('standing-', 1, 8, '.png', 0), 15, false);
+   
+
+    //this.throwAnimation = this.sprite.animations.add('throw', Phaser.Animation.generateFrameNames('normal-throw', 1, 6), 15, false);
 
     // Assign initial variable values
     this.canMove = true;
     this.hasDisc = false;
     this.isDashing = false;
+    this.isBlocking = false;
     this.justThrown = false;
     this.primaryKeyPreviouslyHeld = false;
     this.catchTime = 0;
@@ -61,6 +69,7 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     this.game.add.existing(this.reticle);
     this.reticle.kill();
 
+    this.body.setSize(60, 60, 45, 45);
 };
 
 Player.prototype = Object.create(Phaser.Sprite.prototype);
@@ -96,7 +105,15 @@ Player.prototype.update = function() {
         this.tint = 0xff0000;
     }
 
+    if (this.isBlocking){
+        this.tint = 0xff0000;
+    } else {
+        this.tint = 0xffffff;
+    }
+
+    this.manageAnimations();
     this.clampPosition();
+
 
 };
 
@@ -104,6 +121,19 @@ Player.prototype.update = function() {
 // Helper functions for Player.js
 // ----------------------------------------------------
 
+Player.prototype.manageAnimations = function(){
+    if (this.body.velocity.x != 0 || this.body.velocity.y != 0){
+        if (!this.runningAnimation.isPlaying){
+            this.animations.play('running-right-left', 15, true);
+        }
+    } else {
+        // Don't override other animations
+        if (!this.standingAnimation.isPlaying && !this.throwAnimation.isPlaying){
+            // determine whether or not the player has the disc 
+            this.animations.play('standing', 5, true);   
+        }
+    }
+}
 Player.prototype.clampPosition = function(){
 
     // TODO make these values dynamic
@@ -199,6 +229,7 @@ Player.prototype.checkInput = function(){
     var movingUp;
     var movingDown;
     var diagonalFactor;
+    var theDisc = game.state.states[game.state.current].disc;
 
     if (this.leftKey.isDown){
         movingLeft = true;
@@ -221,26 +252,50 @@ Player.prototype.checkInput = function(){
 }
 
 if (this.canMove){
+    var running = false;
     if (movingLeft){
         this.move("x", -1, diagonalFactor)
         this.scale.x = -1;
+        running = true;
+        // this.animations.play('running-right-left', 15, true);
     } else if (movingRight){
         this.move("x", 1, diagonalFactor)
         this.scale.x = 1;
+        running = true;
+        // this.animations.play('running-right-left', 15, true);
     } else {
         this.body.velocity.x = 0;
+        if (this.throwAnimation.isFinished){
+          //  this.animations.play('standing', 5, true);
+        }
+        
     }
 
     if (movingUp){
+        
         this.move("y", -1, diagonalFactor)
+        if (!running){
+            // this.animations.play('running-right-left', 15, true);
+            running = true;
+        }
+    
     } else if (movingDown){
         this.move("y", 1, diagonalFactor)
+        if (!running){
+            // this.animations.play('running-right-left', 15, true);
+            running = true;
+        }
     } else {
+        if (!running){
+          //  this.animations.play('standing', 5, true);
+        }
         this.body.velocity.y = 0;
     }
 } else if (!this.isDashing) {
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
+   // this.animations.play('standing', 5, true);
+
 }
 
 if (this.hasDisc && !this.isDashing){
@@ -255,19 +310,32 @@ if (this.hasDisc && !this.isDashing){
 } 
 
 if (!this.hasDisc && !this.isDashing && this.canMove && !this.justThrown){
+    var notMovingUpOrDown = false;
     if (this.primaryKey.isDown && !this.primaryKeyPreviouslyHeld){
-        this.isDashing = true;
         this.canMove = false;
         if (movingUp){
+            this.isDashing = true;
             this.body.velocity.y = -700 * diagonalFactor;
         } else if (movingDown){
+             this.isDashing = true;
             this.body.velocity.y = 700 * diagonalFactor;
+        } else {
+            notMovingUpOrDown = true;
         }
-
+        console.log(notMovingUpOrDown);
         if (movingLeft){
+            this.isDashing = true;
             this.body.velocity.x= -700 * diagonalFactor;
         } else if (movingRight){
+            this.isDashing = true;
             this.body.velocity.x = 700 * diagonalFactor;
+        } else if (notMovingUpOrDown && !this.isBlocking && !theDisc.isPoppedUp && !theDisc.isBeingLobbed){
+            this.isBlocking = true;
+            // Replace this with an oncomplete 
+            game.time.events.add(Phaser.Timer.SECOND*.25, function(){this.isBlocking = false; this.canMove = true}, this); 
+
+        } else if (notMovingUpOrDown && !this.isBlocking && (theDisc.isPoppedUp || theDisc.isBeingLobbed)) {
+            this.canMove = true;
         }
 
         this.primaryKeyPreviouslyHeld = true;
@@ -287,7 +355,7 @@ if (this.secondaryKey.isUp && this.secondaryKeyPreviouslyHeld){
 Player.prototype.checkForSpecialCharge = function(){
     var theDisc = game.state.states[game.state.current].disc;
     //  console.log(this.chargeTimer)
-    if (theDisc.isBeingLobbed && this.specialEligible){
+    if ((theDisc.isBeingLobbed || theDisc.isPoppedUp) && this.specialEligible){
 
         this.tint = 0xff00ff;
         this.chargeTimer += 1;
@@ -314,33 +382,42 @@ Player.prototype.catchDisc = function(player, disc){
         //TODO Consider putting these all into a function in the disc class
         var theDisc = game.state.states[game.state.current].disc;
         theDisc.specialActive = false;
+
+
+
         if (disc.catchable){
-            theDisc.isBeingLobbed = false;
-            theDisc.pickUp();
-            theDisc.kill();
 
+            if (this.isBlocking && !theDisc.isBeingLobbed && !theDisc.isPoppedUp){
+                //pop the disc up
+                console.log("this ran")
+                theDisc.popUp();
+            } else {
 
-            // this.body.velocity.x = 0;
-            // this.body.velocity.y = 0;
-            //TODO activate correct animation state
-            this.canMove = false;
-            this.hasDisc = true;
-            // make sure the x scale makes the player face the right direction
-            switch (this.teamIdentifier){
-                case 1:
-                this.scale.x = 1;
-                break;
-                case 2:
-                this.scale.x = -1;
-                break;
-            }
-            // TODO check if the player was facing the right or wrong way
+                theDisc.isBeingLobbed = false;
+                theDisc.isPoppedUp = false;
+                theDisc.pickUp();
+                theDisc.kill();
+                //TODO activate correct animation state
+                this.canMove = false;
+                this.hasDisc = true;
+                // make sure the x scale makes the player face the right direction
+                switch (this.teamIdentifier){
+                    case 1:
+                    this.scale.x = 1;
+                    break;
+                    case 2:
+                    this.scale.x = -1;
+                    break;
+                }
+                
+                // TODO check if the player was facing the right or wrong way
 
-            // keep track of when the disc was caught
-            this.catchTime = game.time.time;
+                // keep track of when the disc was caught
+                this.catchTime = game.time.time;
 
-            if (this.specialMoveCharged){
-                this.specialMovePending = true;
+                if (this.specialMoveCharged){
+                    this.specialMovePending = true;
+                }
             }
         }
 
@@ -348,7 +425,7 @@ Player.prototype.catchDisc = function(player, disc){
 }
 
 Player.prototype.endDash = function(){
-    console.log(this.isDashing);
+    //console.log(this.isDashing);
     if (this.isDashing && this.body.velocity.x == 0 & this.body.velocity.y == 0){
         this.isDashing = false;
         if (!this.hasDisc){
@@ -496,8 +573,8 @@ Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
     }, this);
 
 
-this.loadTexture('guber-throwing', 0, false);
-this.animations.play('throw', 20, false);
+//this.loadTexture('guber-throwing', 0, false);
+this.animations.play('normal-throw', 20, false);
 
 
 }
@@ -505,8 +582,8 @@ this.animations.play('throw', 20, false);
 
 // Animation helpers -- consider moving these
 Player.prototype.finishThrow = function(){
- this.loadTexture('guber-standing', 0, false);
- this.animations.play('walk', 5, true);
+ 
+ this.animations.play('standing', 5, true);
 }
 
 

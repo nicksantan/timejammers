@@ -31,12 +31,12 @@ game.physics.arcade.overlap(this, game.state.states[game.state.current].testPlay
 
 // This is a dumb way of doing this, but since the reticles belong to the player, I'm not sure how to test against the 'other player's' reticle. If anyone ever reads this, know I just did it to get the demo working in time.
 Reticle.prototype.playerOneEligible = function(reticle,player){
-	console.log("player one eleigible")
+//	console.log("player one eleigible")
 	game.state.states[game.state.current].testPlayer.specialEligible = true;
 
 }
 
 Reticle.prototype.playerTwoEligible = function(reticle,player){
-	console.log("player two eleigible")
+//	console.log("player two eleigible")
 	game.state.states[game.state.current].testPlayerTwo.specialEligible = true;
 }

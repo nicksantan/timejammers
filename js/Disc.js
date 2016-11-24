@@ -35,6 +35,15 @@ var Disc = function (game, x, y) {
     this.game.add.existing(trail);
     trail.kill();
     this.trailPool.push(trail);
+
+     // create a reticle to use later
+    this.reticle = new Reticle(game,this.game.width/2,this.game.height/2)
+
+    this.reticle.anchor.setTo(0.5,0.5)
+    this.reticle.animations.add('fire');
+    this.game.add.existing(this.reticle);
+    this.reticle.kill();
+
   }
 
 
@@ -57,21 +66,27 @@ Disc.prototype.update = function() {
 		this.addTrail();
 	}
 
-	if (!this.catchable && !this.missed && !this.mayBeMissed && this.isBeingLobbed){
-		
+	if (!this.catchable && !this.missed && !this.mayBeMissed && (this.isBeingLobbed || this.isPoppedUp)){
+		var growRate;
+		if (this.isBeingLobbed){
+			growRate = .06;
+		} else if (this.isPoppedUp){
+			growRate = .06;
+		}
 
 		var currentDistanceToReticle = new Phaser.Point(this.x - this.nextX, this.y - this.nextY);
 	//	console.log(currentDistanceToReticle.getMagnitude() +" + " + this.distanceToReticle/2)
 		if (currentDistanceToReticle.getMagnitude() <= this.distanceToReticle/2){
-			this.scale.x -= .06;
-			this.scale.y -= .06;
+			this.scale.x -= growRate;
+			this.scale.y -= growRate;
 
-			if ((this.scale.x - 1) <= .06){
+			if ((this.scale.x) <= 1){
 				this.scale.x = 1;
 				this.scale.y = 1;
 				this.catchable = true;
 				this.mayBeMissed = true;
 				this.isBeingLobbed = false;
+				this.isPoppedUp = false;
 				console.log("may be missed set to true")
 				this.body.velocity.x = 0;
 				this.body.velocity.y = 0;
@@ -81,8 +96,9 @@ Disc.prototype.update = function() {
 				//game.time.events.add(Phaser.Timer.SECOND * this.GROUND_TIME_BEFORE_MISS, this.scoreMiss, this);
 			}
 		} else {
-			this.scale.x += .06;
-			this.scale.y += .06;
+			console.log(this.isPoppedUp);
+			this.scale.x += growRate;
+			this.scale.y += growRate;
 		}
 	}
 
@@ -90,7 +106,7 @@ Disc.prototype.update = function() {
 		
 		this.mayBeMissedTimer += 1;
 	//	console.log(this.mayBeMissed);
-		console.log(this.mayBeMissedTimer)
+		//console.log(this.mayBeMissedTimer)
 		if (this.mayBeMissedTimer > 30){ // Find a better way to do this magic number
 			
 			this.mayBeMissed = false;
@@ -100,11 +116,58 @@ Disc.prototype.update = function() {
 		}
 	}
 
+	//TODO: Find a better way to do this
+    if (this.catchable){
+        this.reticle.kill();
+    }
+
 };
 
 // ----------------------------------------------------
 // Helper functions for Disc.js
 // ----------------------------------------------------
+
+
+Disc.prototype.popUp = function(){
+	this.isBeingLobbed = true;
+	 // // move the reticle to the location    
+  //   this.reticle.position.x = destX;
+  //   this.reticle.position.y = destY;
+  //   this.reticle.revive();
+  //   this.reticle.animations.play('fire', 15, true);
+    //this.reticle.animations.currentAnim.onComplete.add(function () {  this.reticle.kill();}, this);
+    var destY;
+    var destX;
+    if (this.y < this.game.height/2){ 
+    	destY = this.y + 10 + Math.random()*25;
+    } else {
+    	destY = this.y - 10 - Math.random()*25;
+    }
+
+    if (this.x < this.game.width/2){ 
+    	destX = this.x + 10 + Math.random()*25;
+    } else {
+    	destX = this.x - 10 - Math.random()*25;
+    }
+   
+    // determine direction to the reticle
+    distanceVec = new Phaser.Point(this.x - destX, this.y - destY);
+    normalizedVec = distanceVec.normalize();
+
+    this.body.velocity.y = distanceVec.y * -25;
+    this.body.velocity.x = distanceVec.x * -25;
+   
+    this.catchable = false;
+    this.nextX = destX;
+    this.nextY = destY;
+
+    this.reticle.position.x = destX;
+    this.reticle.position.y = destY;
+    this.reticle.revive();
+    this.reticle.animations.play('fire', 15, true);
+
+    this.distanceToReticle = new Phaser.Point(this.x - destX, this.y - destY).getMagnitude();
+}
 
 Disc.prototype.addTrail = function (){
 	var trail;
