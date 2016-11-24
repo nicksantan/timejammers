@@ -225,7 +225,7 @@ Game.prototype = {
         }      
 
         this.walls.visible = false;
-        this.net.visible = true;
+        this.net.visible = false;
     },
     scoreGoal: function(scoreValue, whichTeamGotScoredOn){
         console.log(scoreValue + " points were scored against team " + whichTeamGotScoredOn);
