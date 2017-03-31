@@ -136,30 +136,43 @@ Player.prototype.update = function() {
 
 Player.prototype.manageAnimations = function(){
     if (this.body.velocity.x != 0 || this.body.velocity.y != 0){
-        this.standingAnimation.stop();
-        if (!this.runningAnimation.isPlaying){
-            this.runningAnimation.play();
-            console.log("or is this")
-        }
+        
+            this.startAnimation(this.runningAnimation)
+        
+        
     } else {
-        this.runningAnimation.stop();
-        console.log("standing")
-        if (this.chargeTimer > 0 && !this.chargingAnimation.isPlaying && !this.hasDisc){
-            this.chargingAnimation.play();
+       
+        if (this.chargeTimer > 0 && !this.hasDisc){
+            this.startAnimation(this.chargingAnimation)
         }
         // Don't override other animations
-        if (!this.throwAnimation.isPlaying && this.chargeTimer == 0){
-            if (this.hasDisc && !this.holdingAnimation.isPlaying){
-                this.holdingAnimation.play();
-            } else if (!this.hasDisc){
-                this.standingAnimation.play();
+        // Disc is not lobbed or popped right now
+        if (this.chargeTimer == 0){
+            if (this.hasDisc){
+                this.startAnimation(this.holdingAnimation)
+            } else {
+                this.startAnimation(this.standingAnimation)
             }
         } 
-        if (this.returningToStartPosition && !this.runningAnimation.isPlaying && !this.atStartPosition){
+        if (this.returningToStartPosition && !this.atStartPosition){
             console.log("trying to play")
             // this.animations.play('running-right-left', 15, true);
-            this.runningAnimation.play();
+            this.startAnimation(this.runningAnimation)
         }
+    }
+}
+
+Player.prototype.stopAllAnimations = function(){
+    this.runningAnimation.stop();
+    this.standingAnimation.stop();
+    //this.throwAnimation.stop();
+    this.holdingAnimation.stop();
+}
+
+Player.prototype.startAnimation = function(whichAnimation){
+    if (!whichAnimation.isPlaying && !this.throwAnimation.isPlaying){
+        this.stopAllAnimations();
+        whichAnimation.play();
     }
 }
 
@@ -634,7 +647,8 @@ Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
 
 
 //this.loadTexture('guber-throwing', 0, false);
-this.animations.play('normal-throw', 20, false);
+this.startAnimation(this.throwAnimation)
+//this.animations.play('normal-throw', 20, false);
 
 
 }
@@ -644,7 +658,7 @@ this.animations.play('normal-throw', 20, false);
 Player.prototype.finishThrow = function(){
  
  // this.animations.play('standing', 5, true);
- this.standingAnimation.play();
+this.startAnimation(this.standingAnimation)
 }
 
 
