@@ -136,20 +136,29 @@ Player.prototype.update = function() {
 
 Player.prototype.manageAnimations = function(){
     if (this.body.velocity.x != 0 || this.body.velocity.y != 0){
+        this.standingAnimation.stop();
         if (!this.runningAnimation.isPlaying){
-            this.animations.play('running-right-left', 15, true);
+            this.runningAnimation.play();
+            console.log("or is this")
         }
     } else {
+        this.runningAnimation.stop();
+        console.log("standing")
         if (this.chargeTimer > 0 && !this.chargingAnimation.isPlaying && !this.hasDisc){
-            this.animations.play('charging', 15, true);
+            this.chargingAnimation.play();
         }
         // Don't override other animations
         if (!this.throwAnimation.isPlaying && this.chargeTimer == 0){
             if (this.hasDisc && !this.holdingAnimation.isPlaying){
-                this.animations.play('holding', 5, true);
-            } else if (!this.hasDisc && !this.standingAnimation.isPlaying){
-                 this.animations.play('standing', 5, true);   
+                this.holdingAnimation.play();
+            } else if (!this.hasDisc){
+                this.standingAnimation.play();
             }
+        } 
+        if (this.returningToStartPosition && !this.runningAnimation.isPlaying && !this.atStartPosition){
+            console.log("trying to play")
+            // this.animations.play('running-right-left', 15, true);
+            this.runningAnimation.play();
         }
     }
 }
@@ -227,6 +236,7 @@ Player.prototype.returnToStartPosition = function(){
     var theDisc = game.state.states[game.state.current].disc;
     var startY = this.game.height/2;
     var startX;
+    console.log ("Returning to start")
         this.body.velocity.x = 0;
         this.body.velocity.y = 0;
     switch (this.teamIdentifier){
@@ -240,8 +250,10 @@ Player.prototype.returnToStartPosition = function(){
 
     if (this.x < startX){
         this.position.x += this.returnToStartRate;
+        // this.animations.play('running-right-left', 15, true);
     } else if (this.x > startX + this.returnToStartRate) {
         this.position.x -= this.returnToStartRate;
+        // this.animations.play('running-right-left', 15, true);
     }
 
     if (this.y < startY){
@@ -250,9 +262,18 @@ Player.prototype.returnToStartPosition = function(){
         this.position.y -= this.returnToStartRate;
     }
 
-    if (Math.abs(this.position.x - startX) < this.returnToStartRate + 1 && Math.abs(this.position.y - startY) < this.returnToStartRate + 1 && !theDisc.pendingServe){
-        //this.atStartPosition = true;
-        this.returningToStartPosition = false;
+    if (Math.abs(this.position.x - startX) < this.returnToStartRate + 1 && Math.abs(this.position.y - startY) < this.returnToStartRate + 1){
+        this.atStartPosition = true;
+        if (!theDisc.pendingServe){
+            this.returningToStartPosition = false;
+        }
+        if (this.runningAnimation.isPlaying){
+            this.runningAnimation.stop();
+            console.log("running stopped")
+        }
+        if (!this.standingAnimation.isPlaying){
+            this.standingAnimation.play();
+        }
 
     }
 }
@@ -286,6 +307,7 @@ Player.prototype.checkInput = function(){
 }
 
 if (this.canMove){
+    this.atStartPosition = false
     var running = false;
     if (movingLeft){
         this.move("x", -1, diagonalFactor)
@@ -621,7 +643,8 @@ this.animations.play('normal-throw', 20, false);
 // Animation helpers -- consider moving these
 Player.prototype.finishThrow = function(){
  
- this.animations.play('standing', 5, true);
+ // this.animations.play('standing', 5, true);
+ this.standingAnimation.play();
 }
 
 
