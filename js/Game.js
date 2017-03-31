@@ -240,6 +240,7 @@ Game.prototype = {
             break;
         }
         this.scoreOverlay.showOverlay();
+        game.world.bringToTop(scoreOverlay)
         console.log("Team 1: " + this.teamOneScore + " Team 2: " + this.teamTwoScore);
         this.players.forEach(function(plyr) {
             plyr.returningToStartPosition = true;  
