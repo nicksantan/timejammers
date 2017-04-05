@@ -533,60 +533,63 @@ Player.prototype.calculateHoldBonus = function(){
 }
 
 Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
-    var theDisc = this.reviveDisc();
-    theDisc.animations.play('spin', 15, true);
-    var holdBonus = this.calculateHoldBonus();
-    console.log ("lobbing")
-    theDisc.isBeingLobbed = true;
-    // choose a 'landing spot' for the lob
-    var destY;
-    console.log("height is " + this.game.height)
-    var playfieldHeight = this.game.height-130;
-    if (movingUp){
-        //TODO: Get bounds of the level here. Right now, use the hardcoded values
-        destY = 80 + Math.random()*((1/3) * playfieldHeight);
-    } else if (movingDown){
-        destY = 80 + ((2/3) * playfieldHeight) + Math.random()*((1/3) * playfieldHeight);
-    } else {
-        destY = this.game.height/2 + Math.random()*100 - 50;
+    this.hasDisc = false;
 
-    }
+    game.time.events.add(Phaser.Timer.SECOND*.25, function(){
+        var theDisc = this.reviveDisc();
+        theDisc.isBeingLobbed = true;
+        theDisc.animations.play('spin', 15, true);
+        var holdBonus = this.calculateHoldBonus();
+        console.log ("lobbing")
+       
+        // choose a 'landing spot' for the lob
+        var destY;
+        console.log("height is " + this.game.height)
+        var playfieldHeight = this.game.height-130;
+        if (movingUp){
+            //TODO: Get bounds of the level here. Right now, use the hardcoded values
+            destY = 80 + Math.random()*((1/3) * playfieldHeight);
+        } else if (movingDown){
+            destY = 80 + ((2/3) * playfieldHeight) + Math.random()*((1/3) * playfieldHeight);
+        } else {
+            destY = this.game.height/2 + Math.random()*100 - 50;
 
-    //TODO: Get bounds of the level here. Right now use the hardcoded value of this.game.width-89 as the far net
-    var destX;
-    switch(this.throwDirection){
-        case 1:
-        destX = (this.game.width-200) + (holdBonus * 20)
-        break;
-        case -1:
-        destX = 200 - (holdBonus*20);
-        break;
-    }
+        }
+
+        //TODO: Get bounds of the level here. Right now use the hardcoded value of this.game.width-89 as the far net
+        var destX;
+        switch(this.throwDirection){
+            case 1:
+            destX = (this.game.width-200) + (holdBonus * 20)
+            break;
+            case -1:
+            destX = 200 - (holdBonus*20);
+            break;
+        }
 
 
-    // move the reticle to the location    
-    this.reticle.position.x = destX;
-    this.reticle.position.y = destY;
-    this.reticle.revive();
-    this.reticle.animations.play('fire', 15, true);
-    //this.reticle.animations.currentAnim.onComplete.add(function () {  this.reticle.kill();}, this);
+        // move the reticle to the location    
+        this.reticle.position.x = destX;
+        this.reticle.position.y = destY;
+        this.reticle.revive();
+        this.reticle.animations.play('fire', 15, true);
+        //this.reticle.animations.currentAnim.onComplete.add(function () {  this.reticle.kill();}, this);
 
-    // determine direction to the reticle
-    distanceVec = new Phaser.Point(this.x - destX, this.y - destY);
-    normalizedVec = distanceVec.normalize();
+        // determine direction to the reticle
+        distanceVec = new Phaser.Point(this.x - destX, this.y - destY);
+        normalizedVec = distanceVec.normalize();
 
-    theDisc.body.velocity.y = distanceVec.y * -300;
-    theDisc.body.velocity.x = distanceVec.x * -300;
-    this.justThrown = true;
-    game.time.events.add(Phaser.Timer.SECOND*.5, function(){this.justThrown = false}, this);
-    theDisc.catchable = false;
-    theDisc.nextX = destX;
-    theDisc.nextY = destY;
+        theDisc.body.velocity.y = distanceVec.y * -300;
+        theDisc.body.velocity.x = distanceVec.x * -300;
+        this.justThrown = true;
+        game.time.events.add(Phaser.Timer.SECOND*.5, function(){this.justThrown = false}, this);
+        theDisc.catchable = false;
+        theDisc.nextX = destX;
+        theDisc.nextY = destY;
 
-    theDisc.distanceToReticle = new Phaser.Point(this.x - destX, this.y - destY).getMagnitude();
-
-   
-
+        theDisc.distanceToReticle = new Phaser.Point(this.x - destX, this.y - destY).getMagnitude();
+    }, this);
+    this.startAnimation(this.throwAnimation)
 }
 
 Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
@@ -645,20 +648,13 @@ Player.prototype.throwDisc = function(movingUp, movingDown, diagonalFactor){
         this.specialMovePending = false;
     }, this);
 
-
-//this.loadTexture('guber-throwing', 0, false);
-this.startAnimation(this.throwAnimation)
-//this.animations.play('normal-throw', 20, false);
-
-
+    this.startAnimation(this.throwAnimation)
 }
 
 
-// Animation helpers -- consider moving these
+// Animation helpers -- consider moving or consolidating these
 Player.prototype.finishThrow = function(){
- 
- // this.animations.play('standing', 5, true);
-this.startAnimation(this.standingAnimation)
+    this.startAnimation(this.standingAnimation)
 }
 
 
