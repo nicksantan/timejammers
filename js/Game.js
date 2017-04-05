@@ -73,8 +73,12 @@ Game.prototype = {
 
         // Create a group to hold the walls
         this.walls = game.add.group();
-        this.createArena(game.arenaType);
+
+        // Create a group to hold all deflectors
+        this.deflectors = game.add.group();
         
+        this.createArena(game.arenaType);
+
         game.stage.smoothed = false;
 
         this.checkingForServe = true;
@@ -110,10 +114,13 @@ Game.prototype = {
         game.physics.arcade.collide(this.players, this.net, null, null, this);
 
         // Disc vs. boundary collisions
-        // console.log(this.disc.catchable);
+        // Should this be in the disc class?
         if (this.disc.catchable){
             game.physics.arcade.overlap(this.disc, this.walls, this.disc.bounceOffWall, null, this.disc)
         }
+
+        // Disc vs. deflector collisions
+        game.physics.arcade.overlap(this.disc, this.deflectors, this.disc.deflect, null, this.disc)
 
         // Doesn't work right now
 
@@ -147,17 +154,26 @@ Game.prototype = {
     },
 
     createBackgroundElements: function(whichArena){
-        this.pirateBG = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-BASE');
-        this.pirateBG.anchor.setTo(0.5,0.5);
+        switch(whichArena){
+            case 1:
+                this.pirateBG = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-BASE');
+                this.pirateBG.anchor.setTo(0.5,0.5);
+            break;
+        }
     },
 
     createForegroundElements: function(whichArena){
-        this.pirateDecks = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-LR-DECKS');
-        this.pirateFront = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-FRONT');
-        this.pirateMast = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-MAST');
-        this.pirateDecks.anchor.setTo(0.5,0.5);
-        this.pirateFront.anchor.setTo(0.5,0.5);
-        this.pirateMast.anchor.setTo(0.5,0.5);
+        switch(whichArena){
+            case 1:
+                this.pirateDecks = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-LR-DECKS');
+                this.pirateFront = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-FRONT');
+                this.pirateMast = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-MAST');
+                this.pirateDecks.anchor.setTo(0.5,0.5);
+                this.pirateFront.anchor.setTo(0.5,0.5);
+                this.pirateMast.anchor.setTo(0.5,0.5);
+            break;
+        }
+    
     },
 
     createArena: function(whichArena){
@@ -219,7 +235,8 @@ Game.prototype = {
                 this.net.height = this.game.height - wallWidth*2;
                 this.game.add.existing(this.net);
 
-
+                this.deflector = new Deflector(game,game.width/2,game.height/2, 50, 50, 2);
+                this.deflectors.add(this.deflector)
 
             break;
         }      

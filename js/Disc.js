@@ -188,7 +188,7 @@ Disc.prototype.addTrail = function (){
 
 Disc.prototype.bounceOffWall = function(disc, wall){
 	
-
+	console.log(wall)
 	if (wall.scoreValue == 0){
 		this.body.velocity.y *= -1;
 		// fire a spark
@@ -222,6 +222,28 @@ Disc.prototype.bounceOffWall = function(disc, wall){
 	// console.log("heyyy")
 	// console.log(this.body.velocity.y)
 };
+
+Disc.prototype.deflect = function(disc, deflector){
+	// if time since last deflect is greater than x than...
+	//deflect
+	console.log("Deflecting!")
+	console.log(deflector.whichDirection)
+	switch (deflector.whichDirection){
+		case 1:
+			this.body.velocity.y = -1 * Math.abs(this.body.velocity.y);
+		break;
+		case 2:
+			this.body.velocity.x = -1 * Math.abs(this.body.velocity.x);
+		break;
+		case 3:
+			this.body.velocity.y = 1 * Math.abs(this.body.velocity.y);
+		break;
+		case 4:
+			this.body.velocity.x = -1 * Math.abs(this.body.velocity.x);
+		break;
+	}
+
+}
 
 Disc.prototype.resetDisc = function(whichSide){
 	this.body.velocity.x = 0;
