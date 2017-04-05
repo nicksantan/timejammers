@@ -142,23 +142,27 @@ Player.prototype.manageAnimations = function(){
         
     } else {
        
-        if (this.chargeTimer > 0 && !this.hasDisc){
-            this.startAnimation(this.chargingAnimation)
-        }
-        // Don't override other animations
-        // Disc is not lobbed or popped right now
-        if (this.chargeTimer == 0){
+       if (this.returningToStartPosition){
+           
+            // this.animations.play('running-right-left', 15, true);
+            
+            if (!this.atStartPosition){
+                this.startAnimation(this.runningAnimation)
+            } else {
+                this.startAnimation(this.standingAnimation)
+            }
+
+        } else if (this.chargeTimer > 0){ // we're not returning to start position but the dic is popped
+            if (!this.hasDisc){
+                this.startAnimation(this.chargingAnimation)
+            }
+        } else if (this.chargeTimer == 0){ // disc is not lobbed or popped right now
             if (this.hasDisc){
                 this.startAnimation(this.holdingAnimation)
             } else {
                 this.startAnimation(this.standingAnimation)
             }
         } 
-        if (this.returningToStartPosition && !this.atStartPosition){
-            console.log("trying to play")
-            // this.animations.play('running-right-left', 15, true);
-            this.startAnimation(this.runningAnimation)
-        }
     }
 }
 
@@ -261,10 +265,14 @@ Player.prototype.returnToStartPosition = function(){
         break;
     }
 
+    // this.startAnimation(this.runningAnimation);
+
     if (this.x < startX){
         this.position.x += this.returnToStartRate;
+        this.scale.x = 1;
         // this.animations.play('running-right-left', 15, true);
     } else if (this.x > startX + this.returnToStartRate) {
+        this.scale.x = -1;
         this.position.x -= this.returnToStartRate;
         // this.animations.play('running-right-left', 15, true);
     }
@@ -280,13 +288,9 @@ Player.prototype.returnToStartPosition = function(){
         if (!theDisc.pendingServe){
             this.returningToStartPosition = false;
         }
-        if (this.runningAnimation.isPlaying){
-            this.runningAnimation.stop();
-            console.log("running stopped")
-        }
-        if (!this.standingAnimation.isPlaying){
-            this.standingAnimation.play();
-        }
+        this.startAnimation(this.standingAnimation);
+      
+        
 
     }
 }
@@ -514,6 +518,12 @@ Player.prototype.reviveDisc = function(){
     theDisc.revive();
     theDisc.position.x = this.position.x + (this.scale.x * 50 ); // these MAGIC NUMBERS need to be set for each individual player
     theDisc.position.y = this.position.y - 10; // these MAGIC NUMBERS need to be set for each individual player
+
+    //SPECIAL CASE FOR MAST LEVEL (this is hacky and bad and should change but really, wtf)
+    if (game.state.states[game.state.current].pirateMast){
+        game.state.states[game.state.current].pirateMast.bringToTop();
+    }
+    
     return theDisc;
 }
 
@@ -535,13 +545,15 @@ Player.prototype.calculateHoldBonus = function(){
 Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
     this.hasDisc = false;
 
+
     game.time.events.add(Phaser.Timer.SECOND*.25, function(){
+
         var theDisc = this.reviveDisc();
-        theDisc.isBeingLobbed = true;
+        theDisc.bringToTop();
         theDisc.animations.play('spin', 15, true);
         var holdBonus = this.calculateHoldBonus();
         console.log ("lobbing")
-       
+        theDisc.isBeingLobbed = true;
         // choose a 'landing spot' for the lob
         var destY;
         console.log("height is " + this.game.height)
@@ -553,6 +565,7 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
             destY = 80 + ((2/3) * playfieldHeight) + Math.random()*((1/3) * playfieldHeight);
         } else {
             destY = this.game.height/2 + Math.random()*100 - 50;
+
 
         }
 
@@ -589,6 +602,7 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
 
         theDisc.distanceToReticle = new Phaser.Point(this.x - destX, this.y - destY).getMagnitude();
     }, this);
+
     this.startAnimation(this.throwAnimation)
 }
 
