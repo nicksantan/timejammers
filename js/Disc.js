@@ -21,7 +21,7 @@ var Disc = function (game, x, y) {
     this.specialActive = false;
     this.justScored = false;
     this.pendingServe = true;
-
+    this.lastDeflectionTime = 0;
     this.spark = game.add.sprite(0, 0, 'spark');
     this.spark.anchor.setTo(0.5,0.5)
     this.spark.animations.add('fire');
@@ -225,22 +225,29 @@ Disc.prototype.bounceOffWall = function(disc, wall){
 
 Disc.prototype.deflect = function(disc, deflector){
 	// if time since last deflect is greater than x than...
-	//deflect
-	console.log("Deflecting!")
-	console.log(deflector.whichDirection)
-	switch (deflector.whichDirection){
-		case 1:
-			this.body.velocity.y = -1 * Math.abs(this.body.velocity.y);
-		break;
-		case 2:
-			this.body.velocity.x = -1 * Math.abs(this.body.velocity.x);
-		break;
-		case 3:
-			this.body.velocity.y = 1 * Math.abs(this.body.velocity.y);
-		break;
-		case 4:
-			this.body.velocity.x = -1 * Math.abs(this.body.velocity.x);
-		break;
+	
+	if (game.time.time - this.lastDeflectionTime > 500){
+		console.log("last deflection time is " + this.lastDeflectionTime)
+		console.log("game.time.time is " + game.time.time)
+		console.log(game.time.time - this.lastDeflectionTime)
+		console.log(deflector.whichDirection)
+		// console.log("Deflecting!")
+		// console.log(deflector.whichDirection)
+		switch (deflector.whichDirection){
+			case 1:
+				this.body.velocity.y = -.6 * Math.abs(this.body.velocity.y);
+			break;
+			case 2:
+				this.body.velocity.x = -1 * Math.abs(this.body.velocity.x);
+			break;
+			case 3:
+				this.body.velocity.y = .6 * Math.abs(this.body.velocity.y);
+			break;
+			case 4:
+				this.body.velocity.x = 1 * Math.abs(this.body.velocity.x);
+			break;
+		}
+		this.lastDeflectionTime = game.time.time;
 	}
 
 }

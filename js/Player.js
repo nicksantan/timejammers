@@ -177,6 +177,7 @@ Player.prototype.manageAnimations = function(){
 Player.prototype.stopAllAnimations = function(){
     this.runningAnimation.stop();
     this.standingAnimation.stop();
+    this.chargingAnimation.stop();
     //this.throwAnimation.stop();
     this.holdingAnimation.stop();
 }

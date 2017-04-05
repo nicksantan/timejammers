@@ -120,7 +120,9 @@ Game.prototype = {
         }
 
         // Disc vs. deflector collisions
-        game.physics.arcade.overlap(this.disc, this.deflectors, this.disc.deflect, null, this.disc)
+        if (!this.disc.isBeingLobbed){
+            game.physics.arcade.overlap(this.disc, this.deflectors, this.disc.deflect, null, this.disc)
+        }
 
         // Doesn't work right now
 
@@ -235,13 +237,21 @@ Game.prototype = {
                 this.net.height = this.game.height - wallWidth*2;
                 this.game.add.existing(this.net);
 
-                this.deflector = new Deflector(game,game.width/2,game.height/2, 50, 50, 2);
-                this.deflectors.add(this.deflector)
+                this.deflectorL = new Deflector(game,game.width/2 - 20,game.height/2, 5, 20, 2);
+                this.deflectorR = new Deflector(game,game.width/2 + 20,game.height/2, 5, 20, 4);
+                this.deflectorT = new Deflector(game,game.width/2, game.height/2 - 12, 25, 5, 1);
+                this.deflectorB = new Deflector(game,game.width/2, game.height/2 + 12, 25, 5, 3);
+                this.deflectors.add(this.deflectorL)
+                this.deflectors.add(this.deflectorR)
+                this.deflectors.add(this.deflectorT)
+                this.deflectors.add(this.deflectorB)
+
 
             break;
         }      
 
         this.walls.visible = false;
+        this.deflectors.visible = false;
         this.net.visible = false;
     },
     scoreGoal: function(scoreValue, whichTeamGotScoredOn){
