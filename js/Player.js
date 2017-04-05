@@ -150,6 +150,14 @@ Player.prototype.manageAnimations = function(){
                 this.startAnimation(this.runningAnimation)
             } else {
                 this.startAnimation(this.standingAnimation)
+                switch (this.teamIdentifier){
+                    case 1:
+                    this.scale.x = 1;
+                    break;
+                    case 2:
+                    this.scale.x = -1;
+                    break;
+                }
             }
 
         } else if (this.chargeTimer > 0){ // we're not returning to start position but the dic is popped
