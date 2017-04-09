@@ -111,7 +111,7 @@ Disc.prototype.update = function() {
 		this.mayBeMissedTimer += 1;
 	//	console.log(this.mayBeMissed);
 		//console.log(this.mayBeMissedTimer)
-		if (this.mayBeMissedTimer > 30){ // Find a better way to do this magic number
+		if (this.mayBeMissedTimer > 5){ // Find a better way to do this magic number
 			
 			this.mayBeMissed = false;
 			this.missed = true;
@@ -189,44 +189,45 @@ Disc.prototype.addTrail = function (){
 Disc.prototype.bounceOffWall = function(disc, wall){
 	
 	console.log(wall)
-	if (wall.scoreValue == 0){
-		this.body.velocity.y *= -1;
-		// fire a spark
-		if(wall.y < game.world.height/2){
-			this.spark.scale.y = 1;
-			this.spark.y = this.y - 5;
-		} else {
-			this.spark.scale.y = -1;
-			this.spark.y = this.y + 5;	
-		}
+	// Only bounce if time since last bounce is significant 
+	if (game.time.time - this.lastDeflectionTime > 50){
+		if (wall.scoreValue == 0){
+			this.body.velocity.y *= -1;
+			// fire a spark
+			if(wall.y < game.world.height/2){
+				this.spark.scale.y = 1;
+				this.spark.y = this.y - 5;
+			} else {
+				this.spark.scale.y = -1;
+				this.spark.y = this.y + 5;	
+			}
 
-		if (this.body.velocity.x > 0){
-			this.spark.x = this.x - 5;
-			this.spark.scale.x = -1;
+			if (this.body.velocity.x > 0){
+				this.spark.x = this.x - 5;
+				this.spark.scale.x = -1;
+			} else {
+				this.spark.x = this.x + 5;
+				this.spark.scale.x = 1;
+			}
+		
+			this.spark.revive();
+			this.spark.animations.play('fire', 15, false);
+			this.spark.animations.currentAnim.onComplete.add(function () {	this.spark.kill();}, this);
+			this.lastDeflectionTime = game.time.time;
 		} else {
-			this.spark.x = this.x + 5;
-			this.spark.scale.x = 1;
-		}
-	
-		this.spark.revive();
-		this.spark.animations.play('fire', 15, false);
-		this.spark.animations.currentAnim.onComplete.add(function () {	this.spark.kill();}, this);
-	} else {
-		if (!this.justScored){
-			game.state.states[game.state.current].scoreGoal(wall.scoreValue, wall.whichSide);
-			this.resetDisc(wall.whichSide);
-			this.justScored = true;
+			if (!this.justScored){
+				game.state.states[game.state.current].scoreGoal(wall.scoreValue, wall.whichSide);
+				this.resetDisc(wall.whichSide);
+				this.justScored = true;
+			}
 		}
 	}
-
-	// console.log("heyyy")
-	// console.log(this.body.velocity.y)
 };
 
 Disc.prototype.deflect = function(disc, deflector){
 	// if time since last deflect is greater than x than...
 	
-	if (game.time.time - this.lastDeflectionTime > 500){
+	if (game.time.time - this.lastDeflectionTime > 50){
 		console.log("last deflection time is " + this.lastDeflectionTime)
 		console.log("game.time.time is " + game.time.time)
 		console.log(game.time.time - this.lastDeflectionTime)
@@ -273,6 +274,9 @@ Disc.prototype.pickUp = function(){
 }
 Disc.prototype.scoreMiss = function(){
 	this.catchable = false; 
+	// bring the players of the game to the top of the stack
+	console.log("bring players to top")
+	game.world.bringToTop(game.state.states[game.state.current].players);
 	
 	
 	var sideScoredOn;

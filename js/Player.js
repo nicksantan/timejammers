@@ -65,6 +65,7 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     this.specialMoveCharged = false;
     this.specialMovePending = false;
     this.specialEligible = false;
+    this.celebrating = false;
     // create a reticle to use later
     this.reticle = new Reticle(game,this.game.width/2,this.game.height/2)
 
@@ -95,7 +96,7 @@ Player.prototype.constructor = Player;
 
 Player.prototype.update = function() { 
 
-    if (!this.returningToStartPosition){
+    if (!this.returningToStartPosition && !this.celebrating){
 
         game.physics.arcade.overlap(this, game.state.states[game.state.current].disc, this.catchDisc, null, this)
        // game.physics.arcade.overlap(this, game.state.states[game.state.current].reticles, function(){this.specialEligible = true;} null, this)
@@ -187,6 +188,10 @@ Player.prototype.startAnimation = function(whichAnimation){
         this.stopAllAnimations();
         whichAnimation.play();
     }
+}
+
+Player.prototype.celebrate = function(){
+    this.startAnimation(this.chargingAnimation);
 }
 
 Player.prototype.addTrail = function (){

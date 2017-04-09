@@ -269,26 +269,38 @@ Game.prototype = {
         this.scoreOverlay.showOverlay();
         game.world.bringToTop(this.scoreOverlay)
         console.log("Team 1: " + this.teamOneScore + " Team 2: " + this.teamTwoScore);
-        this.players.forEach(function(plyr) {
-            plyr.returningToStartPosition = true;  
-        }, this);
+      
 
-        this.checkingForServe = true;
+        
 
         // Check for set win
         if (this.teamOneScore >= 12){
             this.teamOneSet += 1;
             this.scoreOverlay.updateSet(1,this.teamOneSet);
-            game.time.events.add(Phaser.Timer.SECOND * 2, this.resetScoreOverlay, this);
+            game.time.events.add(Phaser.Timer.SECOND * 5, this.resetScoreOverlay, this);
+            // this.players.forEach(function(plyr) {
+            //     if (plyr.teamIdentifier == 1){
+            //         plyr.celebrate();
+            //     }  
+            // }, this);
 
-        }
-        if (this.teamTwoScore >= 12){
+        } else if (this.teamTwoScore >= 12){
             this.teamTwoSet += 1;
             this.scoreOverlay.updateSet(2,this.teamTwoSet);
-            game.time.events.add(Phaser.Timer.SECOND * 2, this.resetScoreOverlay, this);
-           
+            game.time.events.add(Phaser.Timer.SECOND * 5, this.resetScoreOverlay, this);     
+            // this.players.forEach(function(plyr) {
+            //     if (plyr.teamIdentifier == 2){
+            //         plyr.celebrate();
+            //     }  
+            // }, this);
+        } else {
+            this.players.forEach(function(plyr) {
+                plyr.returningToStartPosition = true;  
+            }, this);
+            this.checkingForServe = true;
         }
 
+        // move this to another function
         if (this.teamTwoSet >= 3 || this.teamOneSet >= 3){
             //present win graphics.
             this.gameIsOver = true;
