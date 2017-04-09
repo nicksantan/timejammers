@@ -33,8 +33,8 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
     this.SPEED = 200;
     this.POWER = 200;
     this.HOLDTHRESHOLD = 1000;
-    console.log(Phaser.Animation.generateFrameNames('standing', 1, 6, '.png', 0))
-    this.runningAnimation = this.animations.add('running-right-left', Phaser.Animation.generateFrameNames('running-right-left-', 1, 6, '.png', 0), 15, false);
+    console.log(Phaser.Animation.generateFrameNames('blocking', 1, 2, '.png', 0))
+    this.runningAnimation = this.animations.add('running-right-left', Phaser.Animation.generateFrameNames('running-right-left-', 1, 6, '.png', 0), 12, false);
     // this.animations.play('running-right-left', 15, true);
   //  this.throwAnimation = this.animations.add('throw', [5,4,3,2,1,0], 15, false);
     this.throwAnimation = this.animations.add('normal-throw', Phaser.Animation.generateFrameNames('normal-throw-', 1, 6, '.png', 0), 15, false);
@@ -42,7 +42,8 @@ var Player = function (game, x, y, playerIdentifier, teamIdentifier) {
 
     this.standingAnimation = this.animations.add('standing', Phaser.Animation.generateFrameNames('standing-', 1, 8, '.png', 0), 15, false);
    
-
+    this.blockingAnimation = this.animations.add('blocking', Phaser.Animation.generateFrameNames('blocking-', 1, 2, '.png', 0), 5, false);
+    this.blockingAnimation.onComplete.add(function(){this.isBlocking = false; this.canMove = true}, this); 
     this.holdingAnimation = this.animations.add('holding', Phaser.Animation.generateFrameNames('holding-', 1, 8, '.png', 0), 15, false);
     //this.throwAnimation = this.sprite.animations.add('throw', Phaser.Animation.generateFrameNames('normal-throw', 1, 6), 15, false);
 
@@ -116,14 +117,14 @@ Player.prototype.update = function() {
 
     // Just for testing
     if (this.specialMovePending){
-        this.tint = 0xff0000;
+       // this.tint = 0xff0000;
     }
 
-    if (this.isBlocking){
-        this.tint = 0xff0000;
-    } else {
-        this.tint = 0xffffff;
-    }
+    // if (this.isBlocking){
+    //     this.tint = 0xff0000;
+    // } else {
+    //     this.tint = 0xffffff;
+    // }
 
     this.manageAnimations();
     this.clampPosition();
@@ -137,7 +138,9 @@ Player.prototype.update = function() {
 
 Player.prototype.manageAnimations = function(){
     if (this.body.velocity.x != 0 || this.body.velocity.y != 0){
-        
+            
+            this.isBlocking = false;
+            this.canMove = true;
             this.startAnimation(this.runningAnimation)
         
         
@@ -162,14 +165,16 @@ Player.prototype.manageAnimations = function(){
             }
 
         } else if (this.chargeTimer > 0){ // we're not returning to start position but the dic is popped
-            if (!this.hasDisc){
+            if (!this.hasDisc && !this.blockingAnimation.isPlaying){
                 this.startAnimation(this.chargingAnimation)
             }
         } else if (this.chargeTimer == 0){ // disc is not lobbed or popped right now
             if (this.hasDisc){
                 this.startAnimation(this.holdingAnimation)
             } else {
-                this.startAnimation(this.standingAnimation)
+                if (!this.blockingAnimation.isPlaying){
+                    this.startAnimation(this.standingAnimation)
+                }
             }
         } 
     }
@@ -181,6 +186,7 @@ Player.prototype.stopAllAnimations = function(){
     this.chargingAnimation.stop();
     //this.throwAnimation.stop();
     this.holdingAnimation.stop();
+    this.blockingAnimation.stop();
 }
 
 Player.prototype.startAnimation = function(whichAnimation){
@@ -418,8 +424,9 @@ if (!this.hasDisc && !this.isDashing && this.canMove && !this.justThrown){
             this.body.velocity.x = 700 * diagonalFactor;
         } else if (notMovingUpOrDown && !this.isBlocking && !theDisc.isPoppedUp && !theDisc.isBeingLobbed){
             this.isBlocking = true;
+            this.startAnimation(this.blockingAnimation)
             // Replace this with an oncomplete 
-            game.time.events.add(Phaser.Timer.SECOND*.25, function(){this.isBlocking = false; this.canMove = true}, this); 
+            
 
         } else if (notMovingUpOrDown && !this.isBlocking && (theDisc.isPoppedUp || theDisc.isBeingLobbed)) {
             this.canMove = true;
@@ -444,11 +451,11 @@ Player.prototype.checkForSpecialCharge = function(){
     //  console.log(this.chargeTimer)
     if ((theDisc.isBeingLobbed || theDisc.isPoppedUp) && this.specialEligible){
 
-        this.tint = 0xff00ff;
+       // this.tint = 0xff00ff;
         this.chargeTimer += 1;
 
     } else {
-        this.tint = 0xffffff;
+       // this.tint = 0xffffff;
         this.chargeTimer = 0;
     }
 
@@ -459,7 +466,7 @@ Player.prototype.checkForSpecialCharge = function(){
     }
 
     if (this.specialMoveCharged){
-         this.tint = 0x000000;
+         //this.tint = 0x000000;
     }
 
 }
@@ -609,7 +616,7 @@ Player.prototype.lobDisc = function(movingUp, movingDown, diagonalFactor){
         theDisc.body.velocity.y = distanceVec.y * -300;
         theDisc.body.velocity.x = distanceVec.x * -300;
         this.justThrown = true;
-        game.time.events.add(Phaser.Timer.SECOND*.5, function(){this.justThrown = false}, this);
+        game.time.events.add(Phaser.Timer.SECOND*.1, function(){this.justThrown = false}, this);
         theDisc.catchable = false;
         theDisc.nextX = destX;
         theDisc.nextY = destY;
