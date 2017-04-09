@@ -139,15 +139,16 @@ Player.prototype.update = function() {
 Player.prototype.manageAnimations = function(){
     if (this.body.velocity.x != 0 || this.body.velocity.y != 0){
             
-            this.isBlocking = false;
-            this.canMove = true;
-            this.startAnimation(this.runningAnimation)
+            if (!this.isBlocking){
+                this.startAnimation(this.runningAnimation)
+            }
         
         
     } else {
        
        if (this.returningToStartPosition){
            
+           this.isBlocking = false;
             // this.animations.play('running-right-left', 15, true);
             
             if (!this.atStartPosition){
@@ -422,7 +423,7 @@ if (!this.hasDisc && !this.isDashing && this.canMove && !this.justThrown){
         } else if (movingRight){
             this.isDashing = true;
             this.body.velocity.x = 700 * diagonalFactor;
-        } else if (notMovingUpOrDown && !this.isBlocking && !theDisc.isPoppedUp && !theDisc.isBeingLobbed){
+        } else if (notMovingUpOrDown && !this.isBlocking && !theDisc.isPoppedUp && !theDisc.isBeingLobbed && !this.isDashing){
             this.isBlocking = true;
             this.startAnimation(this.blockingAnimation)
             // Replace this with an oncomplete 

@@ -69,10 +69,12 @@ Game.prototype = {
         this.disc.body.velocity.y = 0;
         game.time.events.add(Phaser.Timer.SECOND * 2, function(){this.disc.serve(1)}, this);
 
-        this.createForegroundElements(game.arenaType);
-
         // Create a group to hold the walls
         this.walls = game.add.group();
+
+        // Create a group for foreground elements.
+        this.foregroundElements = game.add.group();
+        this.createForegroundElements(game.arenaType);
 
         // Create a group to hold all deflectors
         this.deflectors = game.add.group();
@@ -124,6 +126,9 @@ Game.prototype = {
             game.physics.arcade.overlap(this.disc, this.deflectors, this.disc.deflect, null, this.disc)
         }
 
+        // Make sure foregroud elements are always in the front
+        game.world.bringToTop(this.foregroundElements);
+
         // Doesn't work right now
 
         // if (this.checkingForServe){
@@ -170,9 +175,13 @@ Game.prototype = {
                 this.pirateDecks = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-LR-DECKS');
                 this.pirateFront = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-FRONT');
                 this.pirateMast = this.game.add.sprite(this.game.width/2,this.game.height/2,'jewel-of-rabat-MAST');
+              
                 this.pirateDecks.anchor.setTo(0.5,0.5);
                 this.pirateFront.anchor.setTo(0.5,0.5);
                 this.pirateMast.anchor.setTo(0.5,0.5);
+
+                this.foregroundElements.add(this.pirateDecks)
+                this.foregroundElements.add(this.pirateFront)
             break;
         }
     

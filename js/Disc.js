@@ -134,6 +134,7 @@ Disc.prototype.update = function() {
 
 Disc.prototype.popUp = function(){
 	this.isBeingLobbed = true;
+	this.bringToTop();
 	 // // move the reticle to the location    
   //   this.reticle.position.x = destX;
   //   this.reticle.position.y = destY;
