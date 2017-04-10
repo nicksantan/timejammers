@@ -218,6 +218,9 @@ Disc.prototype.bounceOffWall = function(disc, wall){
 		} else {
 			if (!this.justScored){
 				game.state.states[game.state.current].scoreGoal(wall.scoreValue, wall.whichSide);
+				// Call an explosion
+				var explosion = new Explosion(game,145,this.y,wall.scoreValue); // get a hard coded x from the arena data TODO
+				this.game.add.existing(explosion)
 				this.resetDisc(wall.whichSide);
 				this.justScored = true;
 			}
@@ -229,10 +232,10 @@ Disc.prototype.deflect = function(disc, deflector){
 	// if time since last deflect is greater than x than...
 	
 	if (game.time.time - this.lastDeflectionTime > 50){
-		console.log("last deflection time is " + this.lastDeflectionTime)
-		console.log("game.time.time is " + game.time.time)
-		console.log(game.time.time - this.lastDeflectionTime)
-		console.log(deflector.whichDirection)
+		// console.log("last deflection time is " + this.lastDeflectionTime)
+		// console.log("game.time.time is " + game.time.time)
+		// console.log(game.time.time - this.lastDeflectionTime)
+		// console.log(deflector.whichDirection)
 		// console.log("Deflecting!")
 		// console.log(deflector.whichDirection)
 		switch (deflector.whichDirection){

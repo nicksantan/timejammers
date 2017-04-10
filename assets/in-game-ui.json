@@ -1,0 +1,44 @@
+{"frames": {
+
+"explosion-1.png":
+{
+	"frame": {"x":363,"y":1,"w":24,"h":50},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":7,"y":19,"w":24,"h":50},
+	"sourceSize": {"w":131,"h":89}
+},
+"explosion-2.png":
+{
+	"frame": {"x":236,"y":1,"w":125,"h":79},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":5,"w":125,"h":79},
+	"sourceSize": {"w":131,"h":89}
+},
+"explosion-3.png":
+{
+	"frame": {"x":1,"y":1,"w":131,"h":89},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":89},
+	"sourceSize": {"w":131,"h":89}
+},
+"explosion-4.png":
+{
+	"frame": {"x":134,"y":1,"w":100,"h":89},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":2,"y":0,"w":100,"h":89},
+	"sourceSize": {"w":131,"h":89}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "in-game-ui.png",
+	"format": "RGBA8888",
+	"size": {"w":388,"h":91},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:d41dddcf4239319ac099cdada6f59605:d29675386e7c16585b2317bc4a98b40b:f9110b390d9520d4280e72d8a6d0c6bb$"
+}
+}

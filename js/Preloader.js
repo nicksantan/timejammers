@@ -48,6 +48,7 @@ Preloader.prototype = {
 		// load texture atlases
 		this.game.load.atlas('number-atlas', 'assets/number-atlas.png', 'assets/number-atlas.json');
 		this.game.load.atlas('guber-atlas', 'assets/guber-atlas.png', 'assets/guber-atlas.json');
+		this.game.load.atlas('in-game-ui-atlas', 'assets/in-game-ui.png', 'assets/in-game-ui.json');
 
 	},
 

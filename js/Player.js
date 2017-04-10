@@ -274,7 +274,7 @@ Player.prototype.returnToStartPosition = function(){
     var theDisc = game.state.states[game.state.current].disc;
     var startY = this.game.height/2;
     var startX;
-    console.log ("Returning to start")
+    //console.log ("Returning to start")
         this.body.velocity.x = 0;
         this.body.velocity.y = 0;
     switch (this.teamIdentifier){
