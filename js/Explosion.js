@@ -9,7 +9,8 @@ var Explosion = function (game, x, y) {
 	this.explosionAnimation.onComplete.add(this.killExplosion, this);
 	this.kill();
 	// this.animations.play('explosion', 8, false, true);
-	
+	this.pointNumber = new PointNumber(game,0,0);
+	game.add.existing(this.pointNumber);
 	
 };
 
@@ -42,4 +43,7 @@ Explosion.prototype.fireExplosion = function(xVal, yVal, scoreValue){
 		this.scale.x = 1;
 	}
 	this.explosionAnimation.play();
+
+	this.pointNumber.revive();
+	this.pointNumber.firePointNumber(xVal,yVal,scoreValue);
 }
