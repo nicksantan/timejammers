@@ -1,47 +1,45 @@
 // Explosion.js: a class for an individual point explosion
-var Explosion = function (game, x, y, pointValue) {
+var Explosion = function (game, x, y) {
 
     Phaser.Sprite.call(this, game, x, y, 'in-game-ui-atlas');
     this.anchor.setTo(0.5,0.5);
     console.log("explosion constructor")
-    this.explosionAnimation = this.animations.add('explosion', Phaser.Animation.generateFrameNames('explosion-', 1, 4, '.png', 0), 1, false);
+    this.explosionAnimation = this.animations.add('explosion', Phaser.Animation.generateFrameNames('explosion-', 1, 4, '.png', 0), 8, false);
+	// this.explosionAnimation.play();
+	this.explosionAnimation.onComplete.add(this.killExplosion, this);
+	this.kill();
+	// this.animations.play('explosion', 8, false, true);
 	
-	this.animations.play('explosion', 8, false, true);
+	
 };
 
 Explosion.prototype = Object.create(Phaser.Sprite.prototype);
 Explosion.prototype.constructor = Explosion;
 
 // ----------------------------------------------------
-// Core create and update functions for Disc.js
+// Core create and update functions for Explosion.js
 // ----------------------------------------------------
-
-Explosion.prototype.create = function(){
-	console.log("EXPLOSION!!!!")
-	
-};
 
 Explosion.prototype.update = function() {
-	// this.alpha -= .1;
-	if (this.alpha < 0){
-		this.kill();
-	}
 };
 
 // ----------------------------------------------------
-// Helper functions for Disc.js
+// Helper functions for Explosion.js
 // ----------------------------------------------------
 
-Explosion.prototype.serve = function(whichSide){
-	console.log("serve!")
-	this.catchable = true;
-	switch(whichSide){
-		case 1:
-			this.body.velocity.x = -400;
-		break;
-		case 2: 
-			this.body.velocity.x = 400;
-		break;
-		
+Explosion.prototype.killExplosion = function(){
+	this.kill();
+}
+
+Explosion.prototype.fireExplosion = function(xVal, yVal, scoreValue){
+	console.log("happening")
+	this.x = xVal;
+	this.y = yVal;
+	this.revive();
+	if (this.x > game.width/2){
+		this.scale.x = -1;
+	} else {
+		this.scale.x = 1;
 	}
+	this.explosionAnimation.play();
 }

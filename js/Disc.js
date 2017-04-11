@@ -27,7 +27,9 @@ var Disc = function (game, x, y) {
     this.spark.animations.add('fire');
 
     this.spark.kill();
-    
+	
+	this.explosion = new Explosion(game,0,0);    
+	this.game.add.existing(this.explosion)
     // Create a pool for the disc trails
     this.trailPool = [];
     for (i = 0; i < 20; i++) {
@@ -219,8 +221,13 @@ Disc.prototype.bounceOffWall = function(disc, wall){
 			if (!this.justScored){
 				game.state.states[game.state.current].scoreGoal(wall.scoreValue, wall.whichSide);
 				// Call an explosion
-				var explosion = new Explosion(game,145,this.y,wall.scoreValue); // get a hard coded x from the arena data TODO
-				this.game.add.existing(explosion)
+				var spawnPoint;
+				if (this.x < game.width/2){
+					spawnPoint = 145;
+				}  else {
+					spawnPoint = game.width - 145;
+				}
+				this.explosion.fireExplosion(spawnPoint,this.y,wall.scoreValue);
 				this.resetDisc(wall.whichSide);
 				this.justScored = true;
 			}
